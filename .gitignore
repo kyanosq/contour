@@ -1,0 +1,10 @@
+.DS_Store
+.dart_tool/
+.idea/
+build/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+android/.gradle/
+android/local.properties
+eval/*.png

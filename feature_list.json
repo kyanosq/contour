@@ -1,0 +1,311 @@
+{
+  "_rules": "任何角色不得删除或弱化条目；只允许在附证据（评测报告/测试输出/截图路径）后把 passes 翻为 true。",
+  "features": [
+    {
+      "id": "F01",
+      "sprint": 1,
+      "description": "项目脚手架：flutter create 名为 contour，analyze 零告警，全部单测绿",
+      "steps": [
+        "运行 flutter analyze，输出 No issues found",
+        "运行 flutter test，全部通过"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F02",
+      "sprint": 1,
+      "description": "设计系统落地：Atelier 色彩/字体/刻度母题 TickRuler 组件、浅/深两套主题",
+      "steps": [
+        "存在集中式 design tokens（颜色/间距/圆角/动效时长）",
+        "TickRuler 自绘组件有 widget 测试",
+        "浅/深主题均可渲染首页且对比度达标"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F03",
+      "sprint": 1,
+      "description": "i18n 基础设施：中/英 ARB，语言即时切换并持久化",
+      "steps": [
+        "首页全部文案来自 l10n（无硬编码）",
+        "设置切换语言后 UI 立即变化，重启后保持"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F04",
+      "sprint": 1,
+      "description": "体验模式（Demo 后端）：无网络、无账号可完整走通全流程，是评测与审核通道",
+      "steps": [
+        "登录页存在体验模式入口",
+        "DemoMeasureApi 依据身高体重生成可信 21 项尺寸（确定性，可复测）",
+        "demo 记录本地持久化，重启不丢"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F05",
+      "sprint": 1,
+      "description": "首页：品牌 hero、开始量体 CTA、记录数徽标、设置入口",
+      "steps": [
+        "启动（已登录态）落在首页",
+        "记录数徽标与 demo 后端记录数一致",
+        "三个入口全部可达（开始/记录/设置）"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F06",
+      "sprint": 2,
+      "description": "被测人表单：性别/合身度分段选择、姓名/联系方式输入、错误即时提示",
+      "steps": [
+        "五项输入全部可交互",
+        "缺姓名/联系方式时开始拍摄被阻止并给出具体提示",
+        "输入合法后进入拍摄"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F07",
+      "sprint": 2,
+      "description": "卷尺拾取器：身高/体重以滑动刻度尺输入，每刻度触感反馈，数字大号等宽",
+      "steps": [
+        "拖动刻度尺数值连续变化且与显示一致",
+        "身高体重各有独立卷尺，指针居中",
+        "widget 测试覆盖滑动→数值映射"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F08",
+      "sprint": 2,
+      "description": "单位系统：cm-kg ↔ ft in-lb 切换，数值正确换算，采集标准校验(120-220cm/30-200kg)",
+      "steps": [
+        "单测：cm↔ft in、kg↔lb 换算往返误差 <0.1",
+        "切换单位后卷尺刻度与显示值同步换算",
+        "身高 119cm 被拒绝、120cm 通过；体重 201kg 拒绝、200kg 通过（单测）"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F09",
+      "sprint": 3,
+      "description": "引导拍摄·要领页：拍摄标准图解（贴身衣物/全身入镜/A字姿势/手机竖稳/光线背景）",
+      "steps": [
+        "从被测人页继续后先看到要领页",
+        "要领含 5 条采集标准且与 CaptureStandard 一致",
+        "可跳过（二次进入）或继续"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F10",
+      "sprint": 3,
+      "description": "引导拍摄·正/侧两步：人形轮廓蒙版区分正侧、步骤进度、重拍/确认",
+      "steps": [
+        "正面步骤显示正面轮廓，确认后进入侧面步骤且轮廓变为侧面",
+        "拍后进入本步预览，可重拍或确认",
+        "两步都确认后进入测量"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F11",
+      "sprint": 3,
+      "description": "刻度环水平仪：重力驱动气泡，调平判定（阈值内亮起），不平时快门禁用并提示",
+      "steps": [
+        "倾斜设备气泡偏离、快门禁用（模拟器用注入的模拟重力流验证）",
+        "调平后气泡入环、环亮起、快门可用",
+        "水平仪单测：重力向量→偏移/达标判定"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F12",
+      "sprint": 3,
+      "description": "TTS 语音引导 + 调平自动快门：调平且就位后 3-2-1 语音倒数自动拍摄；语音失败静默降级",
+      "steps": [
+        "进入步骤播报引导词（模拟器验证调用即可，失败不崩溃）",
+        "调平保持 1s 触发倒数，倒数中失衡则取消",
+        "倒数结束自动快门（无相机环境用示例照片路径验证状态机）"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F13",
+      "sprint": 3,
+      "description": "快门元数据：capture_metadata（俯仰/重力/分辨率/时间戳，契约兼容）+ device_info JSON",
+      "steps": [
+        "快门时刻快照重力→pitch_deg 计算有单测",
+        "两视图 metadata 结构快照测试（键名与 MeasurePlatform 契约一致）",
+        "上传参数含 capture_metadata 与 device_info"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F14",
+      "sprint": 3,
+      "description": "无相机回退：模拟器/权限拒绝时提供示例照片继续（同时服务体验模式）",
+      "steps": [
+        "无可用相机时拍摄页不崩溃，出现示例照片按钮",
+        "用示例照片走完正/侧并进入测量"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F15",
+      "sprint": 4,
+      "description": "测量进行页：卷尺展开动画 + 阶段文案，完成后转入结果",
+      "steps": [
+        "上传期间显示动画而非阻塞 HUD",
+        "失败给出可重试错误态",
+        "成功自动进入结果页"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F16",
+      "sprint": 4,
+      "description": "结果页：21 项按身体分区分组（上身/下身/围度），数字滚动呈现，单位感知显示",
+      "steps": [
+        "21 项全部呈现且分组正确",
+        "英制模式下数值按 inch 显示",
+        "首次进入有数字滚动动效"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F17",
+      "sprint": 4,
+      "description": "结果精修：行内编辑 + 步进器，±10cm(±4in) 区间校验，超界标红并禁止保存",
+      "steps": [
+        "点击尺寸行可编辑，步进器 0.5cm 步进",
+        "超出区间的行标红且保存按钮禁用（附具体行）",
+        "全部合法后保存成功"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F18",
+      "sprint": 4,
+      "description": "成功页与分享：保存成功展示二维码（记录码），可系统分享",
+      "steps": [
+        "保存后成功页出现二维码与记录摘要",
+        "分享按钮拉起系统分享（模拟器验证拉起不崩溃）"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F19",
+      "sprint": 4,
+      "description": "记录列表：分页加载、下拉刷新、空态设计、删除（确认后）",
+      "steps": [
+        "保存后的记录出现在列表顶部",
+        "空列表显示设计过的空态（非白屏）",
+        "删除需确认，删除后列表与首页徽标同步减少"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F20",
+      "sprint": 4,
+      "description": "记录详情：完整尺寸表 + 拍摄照片 + 二维码 + 元信息",
+      "steps": [
+        "从列表进入详情，21 项尺寸完整",
+        "详情含性别/时间/联系方式等元信息",
+        "详情页可再次分享二维码"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F21",
+      "sprint": 5,
+      "description": "登录页：账号密码 + 游客登录 + 体验模式三通道，隐私协议勾选前置",
+      "steps": [
+        "未勾选协议时三通道均被阻止并提示",
+        "游客登录用设备指纹生成稳定身份",
+        "登录成功进入首页，401 时自动回登录页（拦截器单测）"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F22",
+      "sprint": 5,
+      "description": "隐私政策：首启弹窗（同意/不同意，不同意退出），远程拉取失败回退内置文本，设置页可查看",
+      "steps": [
+        "清空存储首启出现隐私弹窗",
+        "断网时仍能展示内置政策文本",
+        "同意后不再弹出；设置页入口可再次查看"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F23",
+      "sprint": 5,
+      "description": "设置页：语言/主题(浅/深/跟随)/权限管理/隐私/退出登录/注销账号/版本信息，分组呈现",
+      "steps": [
+        "主题三态切换立即生效并持久化",
+        "权限管理页显示相机/相册权限实时状态并可跳系统设置",
+        "退出登录清 token 回登录页；注销有二次确认"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F24",
+      "sprint": 5,
+      "description": "深色模式：全部页面在深色下工艺完整（无纯白闪块、对比度达标、插画适配）",
+      "steps": [
+        "逐页走查深色模式截图（首页/表单/拍摄/结果/记录/设置）",
+        "深浅切换无闪烁异常"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F25",
+      "sprint": 5,
+      "description": "无障碍与工艺底线：交互≥44pt、Semantics 标签、动态字体一档放大不破版、触感反馈到位",
+      "steps": [
+        "关键交互元素 Semantics 审计（自动化遍历）",
+        "textScaleFactor 1.3 下首页/表单/结果不溢出（widget 测试）",
+        "卷尺/快门/保存有触感调用点"
+      ],
+      "passes": false,
+      "evidence": ""
+    },
+    {
+      "id": "F26",
+      "sprint": 5,
+      "description": "Remote API 协议平移完整：与旧 customerwx 协议逐端点一致（登录/列表/测量/保存/详情/删除/注销/隐私）",
+      "steps": [
+        "RemoteMeasureApi 覆盖 9 个端点，参数键名与旧 app 逐字段一致（对照单测/夹具）",
+        "Authorization 头注入与 401 处理与旧行为一致"
+      ],
+      "passes": false,
+      "evidence": ""
+    }
+  ]
+}
