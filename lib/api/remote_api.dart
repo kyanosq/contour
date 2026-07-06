@@ -17,12 +17,16 @@ class RemoteMeasureApi implements MeasureApi {
   Future<String> login(Map<String, String> credentials) async {
     try {
       // Step 1: checkUser -> openid (accepts {username,password} or {deviceId}).
-      final check =
-          await _dio.post('/app/pzuserdetail/checkUser', data: credentials);
+      final check = await _dio.post(
+        '/app/pzuserdetail/checkUser',
+        data: credentials,
+      );
       final openid = '${check.data}';
       // Step 2: login -> raw token string used as the Authorization header.
-      final login = await _dio.post('/login',
-          queryParameters: {'username': openid, 'srdzflag': 'WX'});
+      final login = await _dio.post(
+        '/login',
+        queryParameters: {'username': openid, 'srdzflag': 'WX'},
+      );
       return '${login.data}';
     } on DioException catch (e) {
       throw _failure(e);
@@ -35,8 +39,10 @@ class RemoteMeasureApi implements MeasureApi {
     required int pageSize,
   }) async {
     try {
-      final res = await _dio.get('/app/customerwx/newCustomerWxList',
-          queryParameters: {'pageSize': pageSize, 'pageNum': pageNum});
+      final res = await _dio.get(
+        '/app/customerwx/newCustomerWxList',
+        queryParameters: {'pageSize': pageSize, 'pageNum': pageNum},
+      );
       final data = res.data as Map<String, dynamic>;
       return RecordPage(
         total: int.tryParse('${data['total']}') ?? 0,
@@ -66,8 +72,10 @@ class RemoteMeasureApi implements MeasureApi {
         'capture_metadata': ?captureMetadata,
         'device_info': ?deviceInfo,
       };
-      final res =
-          await _dio.post('/app/customerwx/newGetCustomerPart', data: params);
+      final res = await _dio.post(
+        '/app/customerwx/newGetCustomerPart',
+        data: params,
+      );
       return MeasureResult.fromJson(
         res.data as Map<String, dynamic>,
         metric: subject.units == UnitSystem.metric,
@@ -83,8 +91,10 @@ class RemoteMeasureApi implements MeasureApi {
     required MeasureResult result,
   }) async {
     try {
-      await _dio.post('/app/customerwx/newUpdateCustomerSize',
-          data: {...subject.toParams(), ...result.toJson()});
+      await _dio.post(
+        '/app/customerwx/newUpdateCustomerSize',
+        data: {...subject.toParams(), ...result.toJson()},
+      );
     } on DioException catch (e) {
       throw _failure(e);
     }
@@ -93,8 +103,11 @@ class RemoteMeasureApi implements MeasureApi {
   @override
   Future<MeasureResult> recordDetail(int id) async {
     try {
-      final res = await _dio
-          .post('/app/customerwx/customerWxDetail', data: {'id': id});
+      // Legacy protocol: GET with the id as a query parameter.
+      final res = await _dio.get(
+        '/app/customerwx/customerWxDetail',
+        queryParameters: {'id': id},
+      );
       return MeasureResult.fromJson(
         res.data as Map<String, dynamic>,
         metric: true,
@@ -125,8 +138,10 @@ class RemoteMeasureApi implements MeasureApi {
   @override
   Future<String?> privacyPolicy() async {
     try {
-      final res =
-          await _dio.get('/privacyPolicy', queryParameters: {'type': 3});
+      final res = await _dio.get(
+        '/privacyPolicy',
+        queryParameters: {'type': 3},
+      );
       final data = res.data;
       if (data is Map<String, dynamic>) {
         return data['content'] as String? ?? data['data']?.toString();

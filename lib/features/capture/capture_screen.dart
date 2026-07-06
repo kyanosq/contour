@@ -21,7 +21,9 @@ import '../../l10n/app_localizations.dart';
 
 /// Scripted gravity for simulator evaluation:
 /// `--dart-define=SIM_GRAVITY=1` → 2.5 s tilted, then level.
-const bool kSimGravity = bool.fromEnvironment('SIM_GRAVITY');
+/// (String-based: `bool.fromEnvironment` only accepts the literal `true`.)
+const bool kSimGravity =
+    String.fromEnvironment('SIM_GRAVITY', defaultValue: '') != '';
 
 enum _CameraState { probing, ready, none, denied }
 
@@ -47,8 +49,12 @@ class _CaptureScreenState extends State<CaptureScreen>
   Timer? _sensorFallback;
   bool _sensorSeen = false;
 
-  LevelReading _reading =
-      const LevelReading(dx: 0, dy: 0, pitchDeg: 0, rollDeg: 0);
+  LevelReading _reading = const LevelReading(
+    dx: 0,
+    dy: 0,
+    pitchDeg: 0,
+    rollDeg: 0,
+  );
   double _ax = 0, _ay = -9.8, _az = 0;
 
   Uint8List? _lastShot;
@@ -60,15 +66,16 @@ class _CaptureScreenState extends State<CaptureScreen>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _machine = CaptureFlowMachine(
-      onShutter: _shoot,
-      onCount: (n) {
-        HapticFeedback.lightImpact();
-        _speak('$n');
-      },
-    )..addListener(() {
-        if (mounted) setState(() {});
-      });
+    _machine =
+        CaptureFlowMachine(
+          onShutter: _shoot,
+          onCount: (n) {
+            HapticFeedback.lightImpact();
+            _speak('$n');
+          },
+        )..addListener(() {
+          if (mounted) setState(() {});
+        });
     _startSensors();
     _initCamera();
     WidgetsBinding.instance.addPostFrameCallback((_) => _speakViewPrompt());
@@ -88,12 +95,13 @@ class _CaptureScreenState extends State<CaptureScreen>
       return;
     }
     try {
-      _gravitySub = accelerometerEventStream(
-        samplingPeriod: const Duration(milliseconds: 80),
-      ).listen((e) {
-        _sensorSeen = true;
-        _feedGravity(e.x, e.y, e.z);
-      }, onError: (_) {});
+      _gravitySub =
+          accelerometerEventStream(
+            samplingPeriod: const Duration(milliseconds: 80),
+          ).listen((e) {
+            _sensorSeen = true;
+            _feedGravity(e.x, e.y, e.z);
+          }, onError: (_) {});
     } catch (_) {}
     // No accelerometer (simulator/desktop): manual-only capture, treat level.
     _sensorFallback = Timer(const Duration(milliseconds: 2000), () {
@@ -128,14 +136,17 @@ class _CaptureScreenState extends State<CaptureScreen>
       }
       // Prefer the back camera (subject is someone else / phone propped).
       _cameraIndex = _cameras.indexWhere(
-          (c) => c.lensDirection == CameraLensDirection.back);
+        (c) => c.lensDirection == CameraLensDirection.back,
+      );
       if (_cameraIndex < 0) _cameraIndex = 0;
       await _openCamera();
     } on CameraException catch (e) {
-      setState(() => _cameraState =
-          e.code.contains('AccessDenied') || e.code.contains('Permission')
-              ? _CameraState.denied
-              : _CameraState.none);
+      setState(
+        () => _cameraState =
+            e.code.contains('AccessDenied') || e.code.contains('Permission')
+            ? _CameraState.denied
+            : _CameraState.none,
+      );
     } catch (_) {
       setState(() => _cameraState = _CameraState.none);
     }
@@ -162,10 +173,12 @@ class _CaptureScreenState extends State<CaptureScreen>
         _cameraState = _CameraState.ready;
       });
     } on CameraException catch (e) {
-      setState(() => _cameraState =
-          e.code.contains('AccessDenied') || e.code.contains('Permission')
-              ? _CameraState.denied
-              : _CameraState.none);
+      setState(
+        () => _cameraState =
+            e.code.contains('AccessDenied') || e.code.contains('Permission')
+            ? _CameraState.denied
+            : _CameraState.none,
+      );
     }
   }
 
@@ -248,8 +261,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     final flow = _flow;
     final done = _machine.confirm();
     if (done) {
-      flow.deviceInfo =
-          buildDeviceInfo(appVersion: context.read<Session>().appVersion);
+      flow.deviceInfo = buildDeviceInfo(
+        appVersion: context.read<Session>().appVersion,
+      );
       context.pushReplacement('/measuring');
     } else {
       _lastShot = null;
@@ -270,9 +284,9 @@ class _CaptureScreenState extends State<CaptureScreen>
     if (_spokePromptForView || !mounted) return;
     _spokePromptForView = true;
     final l = AppLocalizations.of(context);
-    _speak(_machine.view == CaptureView.front
-        ? l.ttsFrontPrompt
-        : l.ttsSidePrompt);
+    _speak(
+      _machine.view == CaptureView.front ? l.ttsFrontPrompt : l.ttsSidePrompt,
+    );
   }
 
   @override
@@ -340,7 +354,8 @@ class _CaptureScreenState extends State<CaptureScreen>
                 _TopBar(
                   label: front ? l.captureStepFront : l.captureStepSide,
                   onClose: () => context.pop(),
-                  onSwitch: (_cameraState == _CameraState.ready &&
+                  onSwitch:
+                      (_cameraState == _CameraState.ready &&
                           _cameras.length > 1 &&
                           !inReview)
                       ? _switchCamera
@@ -349,11 +364,14 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ),
                 const Spacer(),
 
-                // level ring / countdown
-                if (!inReview && _cameraState == _CameraState.ready) ...[
+                // level ring / countdown (shown whenever gravity is live,
+                // so the guidance also works in sample-photo mode)
+                if (!inReview &&
+                    _cameraState != _CameraState.denied &&
+                    _sensorSeen) ...[
                   if (_machine.phase == CapturePhase.countdown)
                     _CountdownBadge(n: _machine.countdown)
-                  else if (_sensorSeen)
+                  else
                     LevelRing(
                       dx: _reading.dx,
                       dy: _reading.dy,
@@ -362,8 +380,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                   const SizedBox(height: Sp.x4),
                   _HintStrip(
                     text: switch (_machine.phase) {
-                      CapturePhase.unlevel =>
-                        _sensorSeen ? l.captureLevelHint : '',
+                      CapturePhase.unlevel => l.captureLevelHint,
                       CapturePhase.holding => l.captureHoldSteady,
                       _ => '',
                     },
@@ -372,8 +389,9 @@ class _CaptureScreenState extends State<CaptureScreen>
                 ],
 
                 // no-camera / permission fallback cards
-                if (_cameraState == _CameraState.none ||
-                    _cameraState == _CameraState.denied)
+                if (!inReview &&
+                    (_cameraState == _CameraState.none ||
+                        _cameraState == _CameraState.denied))
                   Padding(
                     padding: const EdgeInsets.all(Sp.x6),
                     child: _FallbackCard(
@@ -454,8 +472,7 @@ class _TopBar extends StatelessWidget {
           ),
           const Spacer(),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(20),
@@ -517,10 +534,7 @@ class _CountdownBadge extends StatelessWidget {
           color: Colors.white,
           fontFeatures: Numerals.features,
           shadows: [
-            Shadow(
-              color: Colors.black.withValues(alpha: 0.5),
-              blurRadius: 24,
-            ),
+            Shadow(color: Colors.black.withValues(alpha: 0.5), blurRadius: 24),
           ],
         ),
       ),
@@ -592,7 +606,9 @@ class _ShutterBar extends StatelessWidget {
             duration: Motion.standard,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: level ? Colors.white : Colors.white.withValues(alpha: 0.45),
+              color: level
+                  ? Colors.white
+                  : Colors.white.withValues(alpha: 0.45),
             ),
           ),
         ),
@@ -620,7 +636,9 @@ class _ReviewBar extends StatelessWidget {
                 minimumSize: const Size(44, 54),
                 foregroundColor: Colors.white,
                 side: BorderSide(
-                    color: Colors.white.withValues(alpha: 0.6), width: 1),
+                  color: Colors.white.withValues(alpha: 0.6),
+                  width: 1,
+                ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(27),
                 ),
@@ -660,7 +678,9 @@ class _FallbackCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Icon(
-            denied ? Icons.no_photography_outlined : Icons.videocam_off_outlined,
+            denied
+                ? Icons.no_photography_outlined
+                : Icons.videocam_off_outlined,
             size: 30,
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),

@@ -25,9 +25,11 @@ enum TopFit {
 enum UnitSystem { metric, imperial }
 
 /// Unit codes the legacy protocol expects (heightunitid / weightunitid).
+/// Values are the legacy dictionary ids: cm=10266, inch=10265, kg=10261,
+/// pound=10260 (see emeasure lib/models/unit.dart).
 extension UnitCodes on UnitSystem {
-  String get heightCode => this == UnitSystem.metric ? '1' : '2';
-  String get weightCode => this == UnitSystem.metric ? '1' : '2';
+  int get heightCode => this == UnitSystem.metric ? 10266 : 10265;
+  int get weightCode => this == UnitSystem.metric ? 10261 : 10260;
 }
 
 const double cmPerInch = 2.54;
@@ -128,9 +130,9 @@ class Part {
   }
 
   Map<String, dynamic> toJson() => {
-        'partId': partId,
-        'partValue': value.toStringAsFixed(2),
-      };
+    'partId': partId,
+    'partValue': value.toStringAsFixed(2),
+  };
 }
 
 /// Result of a measurement request (legacy TempDetails).
@@ -140,6 +142,8 @@ class MeasureResult {
     this.pzUserDetailId,
     this.measureId,
     this.date,
+    this.imgF,
+    this.imgS,
     required this.parts,
   });
 
@@ -147,15 +151,25 @@ class MeasureResult {
   final String? pzUserDetailId;
   final int? measureId;
   final String? date;
+
+  /// Server-side photo references echoed by the measure endpoint; the legacy
+  /// save call sends them back so the record keeps its photo linkage.
+  final String? imgF;
+  final String? imgS;
+
   final List<Part> parts;
 
-  factory MeasureResult.fromJson(Map<String, dynamic> json,
-      {required bool metric}) {
+  factory MeasureResult.fromJson(
+    Map<String, dynamic> json, {
+    required bool metric,
+  }) {
     return MeasureResult(
       customerId: json['customerId'] as int?,
       pzUserDetailId: json['pzUserDetailId'] as String?,
       measureId: json['measureId'] as int?,
       date: json['date'] as String?,
+      imgF: json['imgF'] as String?,
+      imgS: json['imgS'] as String?,
       parts: [
         for (final p in (json['partValues'] as List<dynamic>? ?? []))
           Part.fromJson(p as Map<String, dynamic>, metric: metric),
@@ -164,12 +178,14 @@ class MeasureResult {
   }
 
   Map<String, dynamic> toJson() => {
-        'customerId': customerId,
-        'pzUserDetailId': pzUserDetailId,
-        'measureId': measureId,
-        'date': date,
-        'partValues': [for (final p in parts) p.toJson()],
-      };
+    'customerId': customerId,
+    'pzUserDetailId': pzUserDetailId,
+    'imgF': imgF,
+    'imgS': imgS,
+    'measureId': measureId,
+    'date': date,
+    'partValues': [for (final p in parts) p.toJson()],
+  };
 }
 
 /// A saved measurement record (list row).
@@ -195,26 +211,26 @@ class MeasureRecord {
   final String? imgS;
 
   factory MeasureRecord.fromJson(Map<String, dynamic> json) => MeasureRecord(
-        id: int.tryParse('${json['id']}') ?? 0,
-        customerName: json['customerName'] as String?,
-        tel: json['tel'] as String?,
-        gender: '${json['gender'] ?? ''}',
-        qrCode: json['qrCode'] as String?,
-        operationTime: json['operationTime'] as String?,
-        imgF: json['imgF'] as String?,
-        imgS: json['imgS'] as String?,
-      );
+    id: int.tryParse('${json['id']}') ?? 0,
+    customerName: json['customerName'] as String?,
+    tel: json['tel'] as String?,
+    gender: '${json['gender'] ?? ''}',
+    qrCode: json['qrCode'] as String?,
+    operationTime: json['operationTime'] as String?,
+    imgF: json['imgF'] as String?,
+    imgS: json['imgS'] as String?,
+  );
 
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'customerName': customerName,
-        'tel': tel,
-        'gender': gender,
-        'qrCode': qrCode,
-        'operationTime': operationTime,
-        'imgF': imgF,
-        'imgS': imgS,
-      };
+    'id': id,
+    'customerName': customerName,
+    'tel': tel,
+    'gender': gender,
+    'qrCode': qrCode,
+    'operationTime': operationTime,
+    'imgF': imgF,
+    'imgS': imgS,
+  };
 }
 
 class RecordPage {
@@ -239,10 +255,9 @@ Map<String, dynamic> deviceInfoJson({
   required String platform,
   required String model,
   required String appVersion,
-}) =>
-    {
-      'platform': platform,
-      'model': model,
-      'app_version': appVersion,
-      'capture_client': 'contour',
-    };
+}) => {
+  'platform': platform,
+  'model': model,
+  'app_version': appVersion,
+  'capture_client': 'contour',
+};

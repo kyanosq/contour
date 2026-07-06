@@ -30,9 +30,7 @@ class BrassButton extends StatelessWidget {
         foregroundColor: scheme.onPrimary,
         disabledBackgroundColor: bg.withValues(alpha: 0.35),
         minimumSize: const Size(64, 54),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(27),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
         textStyle: const TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
@@ -142,13 +140,17 @@ class SectionLabel extends StatelessWidget {
       children: [
         Container(width: 14, height: 2, color: brassOf(context)),
         const SizedBox(width: Sp.x2),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 2.0,
-            color: scheme.onSurfaceVariant,
+        Flexible(
+          child: Text(
+            text,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 2.0,
+              color: scheme.onSurfaceVariant,
+            ),
           ),
         ),
       ],
@@ -168,25 +170,26 @@ class WorkingVeil extends StatelessWidget {
     return Stack(
       children: [
         child,
-        IgnorePointer(
-          ignoring: !visible,
-          child: AnimatedOpacity(
-            duration: Motion.standard,
-            opacity: visible ? 1 : 0,
-            child: Container(
-              color: Theme.of(context)
-                  .colorScheme
-                  .surface
-                  .withValues(alpha: 0.55),
-              alignment: Alignment.center,
-              child: const SizedBox(
-                width: 30,
-                height: 30,
-                child: CircularProgressIndicator(strokeWidth: 2.4),
+        // Spinner exists only while visible — an off-screen indeterminate
+        // spinner would otherwise animate (and burn frames) forever.
+        if (visible)
+          Positioned.fill(
+            child: AnimatedOpacity(
+              duration: Motion.standard,
+              opacity: 1,
+              child: Container(
+                color: Theme.of(
+                  context,
+                ).colorScheme.surface.withValues(alpha: 0.55),
+                alignment: Alignment.center,
+                child: const SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: CircularProgressIndicator(strokeWidth: 2.4),
+                ),
               ),
             ),
           ),
-        ),
       ],
     );
   }

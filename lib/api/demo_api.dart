@@ -133,7 +133,9 @@ class DemoMeasureApi implements MeasureApi {
     Map<String, dynamic>? captureMetadata,
     Map<String, dynamic>? deviceInfo,
   }) async {
-    await _work(2.2);
+    // Long enough that the measuring choreography reads as a considered
+    // moment (and is capturable by the evaluation walkthrough).
+    await _work(3.4);
     final metric = subject.units == UnitSystem.metric;
     final parts = <Map<String, dynamic>>[
       for (var i = 0; i < demoFieldsZh.length; i++)

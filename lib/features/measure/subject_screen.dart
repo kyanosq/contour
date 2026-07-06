@@ -20,14 +20,20 @@ class SubjectScreen extends StatefulWidget {
 
 class _SubjectScreenState extends State<SubjectScreen> {
   late final MeasureFlow flow = context.read<MeasureFlow>();
-  late final TextEditingController _name =
-      TextEditingController(text: flow.subject.name);
-  late final TextEditingController _contact =
-      TextEditingController(text: flow.subject.contact);
+  late final TextEditingController _name = TextEditingController(
+    text: flow.subject.name,
+  );
+  late final TextEditingController _contact = TextEditingController(
+    text: flow.subject.contact,
+  );
 
   String? _nameError;
   String? _contactError;
   String? _rangeError;
+
+  final _metricsKey = GlobalKey();
+  final _identityKey = GlobalKey();
+  final _scroll = ScrollController();
 
   Subject get s => flow.subject;
 
@@ -35,6 +41,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
   void dispose() {
     _name.dispose();
     _contact.dispose();
+    _scroll.dispose();
     super.dispose();
   }
 
@@ -48,11 +55,30 @@ class _SubjectScreenState extends State<SubjectScreen> {
       _rangeError = !CaptureStandard.heightValid(s.heightCm)
           ? l.errHeightRange
           : !CaptureStandard.weightValid(s.weightKg)
-              ? l.errWeightRange
-              : null;
+          ? l.errWeightRange
+          : null;
     });
     if (_nameError != null || _contactError != null || _rangeError != null) {
       HapticFeedback.heavyImpact();
+      // Bring the first offending section into view — it may be scrolled
+      // out of (and lazily removed from) the list.
+      final target = _rangeError != null ? _metricsKey : _identityKey;
+      final ctx = target.currentContext;
+      if (ctx != null) {
+        Scrollable.ensureVisible(
+          ctx,
+          duration: Motion.emphasized,
+          alignment: 0.1,
+          curve: Curves.easeOutCubic,
+        );
+      } else {
+        // Section not built yet (far off-screen): jump to list end/start.
+        _scroll.animateTo(
+          _rangeError != null ? 0 : _scroll.position.maxScrollExtent,
+          duration: Motion.emphasized,
+          curve: Curves.easeOutCubic,
+        );
+      }
       return;
     }
     context.push('/briefing');
@@ -74,10 +100,19 @@ class _SubjectScreenState extends State<SubjectScreen> {
             children: [
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.fromLTRB(Sp.x6, Sp.x2, Sp.x6, Sp.x6),
+                  controller: _scroll,
+                  padding: const EdgeInsets.fromLTRB(
+                    Sp.x6,
+                    Sp.x2,
+                    Sp.x6,
+                    Sp.x6,
+                  ),
                   children: [
                     FunnelProgress(
-                        step: 1, totalSteps: 3, label: l.subjectTitle),
+                      step: 1,
+                      totalSteps: 3,
+                      label: l.subjectTitle,
+                    ),
                     const SizedBox(height: Sp.x6),
                     Text(
                       l.subjectWho,
@@ -104,16 +139,20 @@ class _SubjectScreenState extends State<SubjectScreen> {
 
                     // ---- metrics card with unit toggle
                     Row(
+                      key: _metricsKey,
                       children: [
                         Expanded(
-                            child: SectionLabel(
-                                '${l.subjectHeight} · ${l.subjectWeight}'
-                                    .toUpperCase())),
+                          child: SectionLabel(
+                            '${l.subjectHeight} · ${l.subjectWeight}'
+                                .toUpperCase(),
+                          ),
+                        ),
                         _UnitToggle(
                           metric: metric,
                           onChanged: (m) => setState(() {
-                            s.units =
-                                m ? UnitSystem.metric : UnitSystem.imperial;
+                            s.units = m
+                                ? UnitSystem.metric
+                                : UnitSystem.imperial;
                           }),
                         ),
                       ],
@@ -121,7 +160,9 @@ class _SubjectScreenState extends State<SubjectScreen> {
                     const SizedBox(height: Sp.x3),
                     ContourCard(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: Sp.x4, vertical: Sp.x5),
+                        horizontal: Sp.x4,
+                        vertical: Sp.x5,
+                      ),
                       child: Column(
                         children: [
                           _MetricBlock(
@@ -149,17 +190,17 @@ class _SubjectScreenState extends State<SubjectScreen> {
                                       if (v % 6 != 0) return null;
                                       final ft = v ~/ 12;
                                       final inch = (v % 12).round();
-                                      return inch == 0
-                                          ? "$ft'"
-                                          : "$ft'$inch\"";
+                                      return inch == 0 ? "$ft'" : "$ft'$inch\"";
                                     },
-                                    onChanged: (v) =>
-                                        setState(() => s.heightCm = inchToCm(v)),
+                                    onChanged: (v) => setState(
+                                      () => s.heightCm = inchToCm(v),
+                                    ),
                                   ),
                           ),
                           Padding(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: Sp.x4),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: Sp.x4,
+                            ),
                             child: Divider(color: scheme.outlineVariant),
                           ),
                           _MetricBlock(
@@ -172,8 +213,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
                                     max: CaptureStandard.maxWeightKg,
                                     step: 0.5,
                                     majorEvery: 10,
-                                    value:
-                                        (s.weightKg * 2).roundToDouble() / 2,
+                                    value: (s.weightKg * 2).roundToDouble() / 2,
                                     onChanged: (v) =>
                                         setState(() => s.weightKg = v),
                                   )
@@ -204,26 +244,34 @@ class _SubjectScreenState extends State<SubjectScreen> {
                       value: s.topFit,
                       onChanged: (f) => setState(() => s.topFit = f),
                       items: {
-                        TopFit.fit: (Icons.accessibility_new_rounded,
-                            l.fitTight),
-                        TopFit.loose:
-                            (Icons.checkroom_rounded, l.fitLoose),
+                        TopFit.fit: (
+                          Icons.accessibility_new_rounded,
+                          l.fitTight,
+                        ),
+                        TopFit.loose: (Icons.checkroom_rounded, l.fitLoose),
                       },
                     ),
                     const SizedBox(height: Sp.x2),
                     Text(
                       l.subjectFitHint,
                       style: TextStyle(
-                          fontSize: 12, color: scheme.onSurfaceVariant),
+                        fontSize: 12,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                     const SizedBox(height: Sp.x6),
 
                     // ---- identity
-                    SectionLabel(l.subjectName.toUpperCase()),
+                    SectionLabel(
+                      l.subjectName.toUpperCase(),
+                      key: _identityKey,
+                    ),
                     const SizedBox(height: Sp.x3),
                     ContourCard(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: Sp.x5, vertical: Sp.x2),
+                        horizontal: Sp.x5,
+                        vertical: Sp.x2,
+                      ),
                       child: Column(
                         children: [
                           TextField(
@@ -432,8 +480,7 @@ class _UnitToggle extends StatelessWidget {
           },
           child: AnimatedContainer(
             duration: Motion.standard,
-            padding:
-                const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 6),
             decoration: BoxDecoration(
               color: selected ? scheme.onSurface : Colors.transparent,
               borderRadius: BorderRadius.circular(20),

@@ -93,86 +93,97 @@ class _TapePickerState extends State<TapePicker> {
     final scheme = Theme.of(context).colorScheme;
     final brass = brassOf(context);
 
-    return SizedBox(
-      height: widget.height,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // The tape
-          NotificationListener<ScrollNotification>(
-            onNotification: (n) {
-              if (n is ScrollStartNotification) _dragging = true;
-              if (n is ScrollEndNotification) _dragging = false;
-              return false;
-            },
-            child: RotatedBox(
-              quarterTurns: -1,
-              child: ListWheelScrollView.useDelegate(
-                controller: _controller,
-                itemExtent: _tickExtent,
-                perspective: 0.0022,
-                diameterRatio: 3.2,
-                physics: const FixedExtentScrollPhysics(),
-                onSelectedItemChanged: (i) {
-                  HapticFeedback.selectionClick();
-                  widget.onChanged(_valueFor(i));
-                },
-                childDelegate: ListWheelChildBuilderDelegate(
-                  childCount: _count,
-                  builder: (context, i) => RotatedBox(
-                    quarterTurns: 1,
-                    child: _Tick(
-                      major: i % widget.majorEvery == 0,
-                      label: _labelFor(i),
-                      color: scheme.onSurfaceVariant,
-                      labelColor: scheme.onSurface,
+    String fmt(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
+    final up = (widget.value + widget.step).clamp(widget.min, widget.max);
+    final down = (widget.value - widget.step).clamp(widget.min, widget.max);
+    return Semantics(
+      slider: true,
+      value: fmt(widget.value),
+      increasedValue: fmt(up),
+      decreasedValue: fmt(down),
+      onIncrease: () => widget.onChanged(up),
+      onDecrease: () => widget.onChanged(down),
+      child: SizedBox(
+        height: widget.height,
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            // The tape
+            NotificationListener<ScrollNotification>(
+              onNotification: (n) {
+                if (n is ScrollStartNotification) _dragging = true;
+                if (n is ScrollEndNotification) _dragging = false;
+                return false;
+              },
+              child: RotatedBox(
+                quarterTurns: -1,
+                child: ListWheelScrollView.useDelegate(
+                  controller: _controller,
+                  itemExtent: _tickExtent,
+                  perspective: 0.0022,
+                  diameterRatio: 3.2,
+                  physics: const FixedExtentScrollPhysics(),
+                  onSelectedItemChanged: (i) {
+                    HapticFeedback.selectionClick();
+                    widget.onChanged(_valueFor(i));
+                  },
+                  childDelegate: ListWheelChildBuilderDelegate(
+                    childCount: _count,
+                    builder: (context, i) => RotatedBox(
+                      quarterTurns: 1,
+                      child: _Tick(
+                        major: i % widget.majorEvery == 0,
+                        label: _labelFor(i),
+                        color: scheme.onSurfaceVariant,
+                        labelColor: scheme.onSurface,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          // Edge fades
-          Positioned.fill(
-            child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      scheme.surfaceContainerLow,
-                      scheme.surfaceContainerLow.withValues(alpha: 0),
-                      scheme.surfaceContainerLow.withValues(alpha: 0),
-                      scheme.surfaceContainerLow,
-                    ],
-                    stops: const [0, 0.18, 0.82, 1],
+            // Edge fades
+            Positioned.fill(
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        scheme.surfaceContainerLow,
+                        scheme.surfaceContainerLow.withValues(alpha: 0),
+                        scheme.surfaceContainerLow.withValues(alpha: 0),
+                        scheme.surfaceContainerLow,
+                      ],
+                      stops: const [0, 0.18, 0.82, 1],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          // Brass needle
-          IgnorePointer(
-            child: Column(
-              children: [
-                Container(
-                  width: 2,
-                  height: widget.height * 0.52,
-                  decoration: BoxDecoration(
-                    color: brass,
-                    borderRadius: BorderRadius.circular(1),
-                    boxShadow: [
-                      BoxShadow(
-                        color: brass.withValues(alpha: 0.4),
-                        blurRadius: 6,
-                      ),
-                    ],
+            // Brass needle
+            IgnorePointer(
+              child: Column(
+                children: [
+                  Container(
+                    width: 2,
+                    height: widget.height * 0.52,
+                    decoration: BoxDecoration(
+                      color: brass,
+                      borderRadius: BorderRadius.circular(1),
+                      boxShadow: [
+                        BoxShadow(
+                          color: brass.withValues(alpha: 0.4),
+                          blurRadius: 6,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const Spacer(),
-              ],
+                  const Spacer(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

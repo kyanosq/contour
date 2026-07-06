@@ -240,10 +240,22 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                             ),
                           ),
                           const SizedBox(height: Sp.x3),
-                          ThreadButton(
-                            label: l.successShare,
-                            onPressed: () => SharePlus.instance
-                                .share(ShareParams(text: seed.qrCode!)),
+                          Builder(
+                            builder: (btnContext) => ThreadButton(
+                              label: l.successShare,
+                              onPressed: () {
+                                // iPad popover anchor.
+                                final box = btnContext.findRenderObject()
+                                    as RenderBox?;
+                                SharePlus.instance.share(ShareParams(
+                                  text: seed.qrCode!,
+                                  sharePositionOrigin: box == null
+                                      ? null
+                                      : box.localToGlobal(Offset.zero) &
+                                          box.size,
+                                ));
+                              },
+                            ),
                           ),
                         ],
                       ),

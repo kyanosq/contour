@@ -1,5 +1,14 @@
 {
   "_rules": "任何角色不得删除或弱化条目；只允许在附证据（评测报告/测试输出/截图路径）后把 passes 翻为 true。",
+  "_evidence_legend": {
+    "analyze": "flutter analyze → No issues found",
+    "test": "flutter test → 45 passed (2026-07-06)",
+    "walk_full": "flutter drive integration_test/walk_full_test.dart on iOS sim Contour-Eval → All tests passed; 截图 eval/w01–w23",
+    "walk_autoshutter": "flutter drive integration_test/walk_autoshutter_test.dart (SIM_GRAVITY=1) → All tests passed; 截图 eval/a01–a03",
+    "walk_misc": "flutter drive integration_test/walk_misc_test.dart → All tests passed; 截图 eval/m01–m10",
+    "persist": "flutter drive integration_test/persist_set_test.dart + 冷重启 simctl launch → 截图 eval/p01_relaunch_home.png",
+    "report": "docs/eval/report.md"
+  },
   "features": [
     {
       "id": "F01",
@@ -9,8 +18,8 @@
         "运行 flutter analyze，输出 No issues found",
         "运行 flutter test，全部通过"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "analyze: No issues found; test: 45/45 green (2026-07-06)"
     },
     {
       "id": "F02",
@@ -21,8 +30,8 @@
         "TickRuler 自绘组件有 widget 测试",
         "浅/深主题均可渲染首页且对比度达标"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "lib/design/tokens.dart+theme.dart; widgets_test.dart TickRuler 用例; 浅色 eval/w03_home.png / 深色 eval/w22_home_en_dark.png"
     },
     {
       "id": "F03",
@@ -32,8 +41,8 @@
         "首页全部文案来自 l10n（无硬编码）",
         "设置切换语言后 UI 立即变化，重启后保持"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "切换即时生效 eval/w21_settings_en_dark.png→w22_home_en_dark.png; 冷重启后仍为英文 eval/p01_relaunch_home.png"
     },
     {
       "id": "F04",
@@ -44,8 +53,8 @@
         "DemoMeasureApi 依据身高体重生成可信 21 项尺寸（确定性，可复测）",
         "demo 记录本地持久化，重启不丢"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w02_login.png 体验模式入口; demo_api_test.dart 确定性+拟人化区间+英制换算; 冷重启记录仍在 eval/p01_relaunch_home.png (Records 徽标 1)"
     },
     {
       "id": "F05",
@@ -56,8 +65,8 @@
         "记录数徽标与 demo 后端记录数一致",
         "三个入口全部可达（开始/记录/设置）"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w03_home.png (人台 hero+三围标注); 保存后徽标 1 条 eval/w15_home_badge.png; walk_full 遍历三入口"
     },
     {
       "id": "F06",
@@ -68,8 +77,8 @@
         "缺姓名/联系方式时开始拍摄被阻止并给出具体提示",
         "输入合法后进入拍摄"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w04_subject_validation.png (双错误内联+自动滚动到问题区); w06 填毕; walk_full 后续进入拍摄; subject_screen_test.dart"
     },
     {
       "id": "F07",
@@ -80,8 +89,8 @@
         "身高体重各有独立卷尺，指针居中",
         "widget 测试覆盖滑动→数值映射"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "widgets_test.dart TapePicker 4 用例（拖动/吸附/边界/外部重定位）; eval/w06_subject_filled.png; walk_full 实拖 (-60px→身高175)"
     },
     {
       "id": "F08",
@@ -92,8 +101,8 @@
         "切换单位后卷尺刻度与显示值同步换算",
         "身高 119cm 被拒绝、120cm 通过；体重 201kg 拒绝、200kg 通过（单测）"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "units_test.dart 换算+边界用例; eval/w05_subject_imperial.png (175cm→5'9\", 65kg→143lb)"
     },
     {
       "id": "F09",
@@ -104,8 +113,8 @@
         "要领含 5 条采集标准且与 CaptureStandard 一致",
         "可跳过（二次进入）或继续"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w07_briefing.png (01–05 五条要领+自动拍摄提示); walk_full 断言 含'贴身衣物'"
     },
     {
       "id": "F10",
@@ -116,8 +125,8 @@
         "拍后进入本步预览，可重拍或确认",
         "两步都确认后进入测量"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "正面轮廓 eval/w08 vs 侧面轮廓 eval/w10（明显不同）; 预览+重拍 eval/w09; walk_full 执行了一次重拍再确认"
     },
     {
       "id": "F11",
@@ -128,8 +137,8 @@
         "调平后气泡入环、环亮起、快门可用",
         "水平仪单测：重力向量→偏移/达标判定"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/a01_tilted.png 气泡出环+提示'微调手机'; eval/a02_holding.png 环转铜色+保持稳定; level_test.dart; 不平阻挡由状态机单测 capture_flow_test 覆盖"
     },
     {
       "id": "F12",
@@ -140,8 +149,8 @@
         "调平保持 1s 触发倒数，倒数中失衡则取消",
         "倒数结束自动快门（无相机环境用示例照片路径验证状态机）"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "walk_autoshutter: 倾斜2.5s→调平→保持→倒数→无任何点击自动出片 eval/a03_auto_fired_review.png; 倒数失衡取消见 capture_flow_test.dart; TTS 调用于模拟器执行无崩溃"
     },
     {
       "id": "F13",
@@ -152,8 +161,8 @@
         "两视图 metadata 结构快照测试（键名与 MeasurePlatform 契约一致）",
         "上传参数含 capture_metadata 与 device_info"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "metadata_test.dart 键名快照+pitch 计算; remote_api.dart measure() 携带两字段（与旧 app home_controller._attachJsonParam 对齐）"
     },
     {
       "id": "F14",
@@ -163,8 +172,8 @@
         "无可用相机时拍摄页不崩溃，出现示例照片按钮",
         "用示例照片走完正/侧并进入测量"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w08_capture_front_fallback.png 回退卡片; walk_full 全程用示例照片走通至结果"
     },
     {
       "id": "F15",
@@ -175,8 +184,8 @@
         "失败给出可重试错误态",
         "成功自动进入结果页"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w11_measuring.png / m07_measuring_dark.png 表盘动画+'正在核对照片'; 自动转结果 (walk_full); 失败重试态由 DemoMeasureApi.failNext 钩子+measuring_screen 错误分支实现"
     },
     {
       "id": "F16",
@@ -187,8 +196,8 @@
         "英制模式下数值按 inch 显示",
         "首次进入有数字滚动动效"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w12+w12b 围度9/长度8/宽高4 分组齐全(widgets_test 分组单测); demo_api_test 英制 inch 值+±4in 包络; 数字滚动 TweenAnimationBuilder (results_screen.dart)"
     },
     {
       "id": "F17",
@@ -199,8 +208,8 @@
         "超出区间的行标红且保存按钮禁用（附具体行）",
         "全部合法后保存成功"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w13_results_invalid.png 胸围103.3超界标红+底部'有1项超出可信范围'+保存禁用; walk_full 修回后保存成功"
     },
     {
       "id": "F18",
@@ -210,8 +219,8 @@
         "保存后成功页出现二维码与记录摘要",
         "分享按钮拉起系统分享（模拟器验证拉起不崩溃）"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w14_success_qr.png 二维码+姓名; 分享面板实拉起 eval/m10_share_sheet.png (CONTOUR-1-…); 顺带修复 iPad sharePositionOrigin 崩溃"
     },
     {
       "id": "F19",
@@ -222,8 +231,8 @@
         "空列表显示设计过的空态（非白屏）",
         "删除需确认，删除后列表与首页徽标同步减少"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w16_records_list.png 新记录; 确认删除后空态 eval/w18_records_empty.png; RecordsStore 分页(pageSize 10)+refresh"
     },
     {
       "id": "F20",
@@ -234,8 +243,8 @@
         "详情含性别/时间/联系方式等元信息",
         "详情页可再次分享二维码"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w17_record_detail.png 姓名/电话/时间/性别+量体码+围度表; walk_full 断言胸围行存在; 分享按钮同 F18 修复"
     },
     {
       "id": "F21",
@@ -246,8 +255,8 @@
         "游客登录用设备指纹生成稳定身份",
         "登录成功进入首页，401 时自动回登录页（拦截器单测）"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "取消勾选后点击被阻 eval/m01_agreement_block.png toast; 游客身份=持久化UUID(login_screen._guestLogin); auth_interceptor_test.dart: Authorization 注入+401 清会话+非401 保留"
     },
     {
       "id": "F22",
@@ -258,8 +267,8 @@
         "断网时仍能展示内置政策文本",
         "同意后不再弹出；设置页入口可再次查看"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "首启弹窗 eval/w01_privacy_gate.png(内置文本，即离线可用); 冷重启不再弹 eval/p01; 设置页政策页 eval/m02_privacy_page.png"
     },
     {
       "id": "F23",
@@ -270,8 +279,8 @@
         "权限管理页显示相机/相册权限实时状态并可跳系统设置",
         "退出登录清 token 回登录页；注销有二次确认"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "eval/w19/w20 主题即时切换, 冷重启保持深色 eval/p01; 权限页实时状态 eval/m03_permissions.png; 退出回登录 eval/w23; 注销二次确认 eval/m04_cancel_confirm.png(点取消仍在会话)"
     },
     {
       "id": "F24",
@@ -281,8 +290,8 @@
         "逐页走查深色模式截图（首页/表单/拍摄/结果/记录/设置）",
         "深浅切换无闪烁异常"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "深色走查: 首页 w22/p01、设置 w20/w21、表单 m05、要领 m06、测量 m07、结果 m08、成功 m09（拍摄页本身即暗色 w08/w10）"
     },
     {
       "id": "F25",
@@ -293,8 +302,8 @@
         "textScaleFactor 1.3 下首页/表单/结果不溢出（widget 测试）",
         "卷尺/快门/保存有触感调用点"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "TapePicker 带 slider Semantics(增减可用); text_scale_test.dart 1.3 倍首页/表单零溢出; 快门 Semantics 标签(capture_screen); 触感: selectionClick(卷尺/性别)+mediumImpact(快门)+heavyImpact(校验失败)"
     },
     {
       "id": "F26",
@@ -304,8 +313,8 @@
         "RemoteMeasureApi 覆盖 9 个端点，参数键名与旧 app 逐字段一致（对照单测/夹具）",
         "Authorization 头注入与 401 处理与旧行为一致"
       ],
-      "passes": false,
-      "evidence": ""
+      "passes": true,
+      "evidence": "逐端点对照通过并修复 3 处偏差：单位字典码(10266/10265/10261/10260)、customerWxDetail 改 GET+query、save 回传 imgF/imgS（units_test 契约断言）; auth_interceptor_test 3 用例"
     }
   ]
 }

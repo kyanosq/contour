@@ -52,8 +52,9 @@ void main() {
       expect(p['gender'], '2');
       expect(p['height'], '165.00');
       expect(p['weight'], '52.50');
-      expect(p['heightunitid'], '1');
-      expect(p['weightunitid'], '1');
+      // Legacy dictionary ids (emeasure lib/models/unit.dart).
+      expect(p['heightunitid'], 10266);
+      expect(p['weightunitid'], 10261);
       expect(p['top_fit'], 'fit');
     });
 
@@ -69,7 +70,8 @@ void main() {
       final p = s.toParams();
       expect(double.parse(p['height'] as String), closeTo(69, 0.01));
       expect(double.parse(p['weight'] as String), closeTo(165, 0.05));
-      expect(p['heightunitid'], '2');
+      expect(p['heightunitid'], 10265);
+      expect(p['weightunitid'], 10260);
       expect(p['top_fit'], 'loose');
     });
   });

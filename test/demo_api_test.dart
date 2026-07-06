@@ -83,6 +83,32 @@ void main() {
       }
     });
 
+    test('imperial subject gets inch values (converted from the cm model)',
+        () async {
+      final api = await _api();
+      final metric = await api.measure(
+        subject: _subject(),
+        frontJpeg: Uint8List(0),
+        sideJpeg: Uint8List(0),
+      );
+      final imperialSubject = _subject()..units = UnitSystem.imperial;
+      final imperial = await api.measure(
+        subject: imperialSubject,
+        frontJpeg: Uint8List(0),
+        sideJpeg: Uint8List(0),
+      );
+      for (var i = 0; i < metric.parts.length; i++) {
+        expect(imperial.parts[i].value,
+            closeTo(cmToInch(metric.parts[i].value), 0.02),
+            reason: metric.parts[i].nameZh);
+      }
+      // Edit envelope also switches: ±10 cm vs ±4 in.
+      final m = metric.parts.first;
+      final im = imperial.parts.first;
+      expect(m.upper! - m.value, closeTo(10, 0.01));
+      expect(im.upper! - im.value, closeTo(4, 0.01));
+    });
+
     test('save → records → detail → delete round trip persists', () async {
       final api = await _api();
       final subject = _subject();

@@ -14,6 +14,17 @@ import '../../l10n/app_localizations.dart';
 class SuccessScreen extends StatelessWidget {
   const SuccessScreen({super.key});
 
+  /// iPad requires a popover anchor; anchor the sheet to the button.
+  static void _shareQr(BuildContext btnContext, String qr) {
+    final box = btnContext.findRenderObject() as RenderBox?;
+    final origin = box == null
+        ? null
+        : box.localToGlobal(Offset.zero) & box.size;
+    SharePlus.instance.share(
+      ShareParams(text: qr, sharePositionOrigin: origin),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -107,11 +118,12 @@ class SuccessScreen extends StatelessWidget {
                 ),
               const Spacer(),
               if (qr != null && qr.isNotEmpty)
-                BrassButton(
-                  label: l.successShare,
-                  icon: Icons.ios_share_rounded,
-                  onPressed: () =>
-                      SharePlus.instance.share(ShareParams(text: qr)),
+                Builder(
+                  builder: (btnContext) => BrassButton(
+                    label: l.successShare,
+                    icon: Icons.ios_share_rounded,
+                    onPressed: () => _shareQr(btnContext, qr),
+                  ),
                 ),
               const SizedBox(height: Sp.x3),
               Row(

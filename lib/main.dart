@@ -13,11 +13,18 @@ import 'app/session.dart';
 import 'design/theme.dart';
 import 'l10n/app_localizations.dart';
 
+/// Evaluation hook: `--dart-define=RESET=1` wipes local state at launch so
+/// automated walkthroughs always start from first-run.
+/// (String-based: `bool.fromEnvironment` only accepts the literal `true`.)
+const bool kResetOnLaunch =
+    String.fromEnvironment('RESET', defaultValue: '') != '';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp]);
   final prefs = await SharedPreferences.getInstance();
+  if (kResetOnLaunch) await prefs.clear();
   final session = Session(prefs);
   unawaited(session.loadAppVersion());
   runApp(ContourApp(session: session));
