@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../api/measure_api.dart';
 import '../../app/session.dart';
+import '../../design/glass.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets.dart';
 import '../../l10n/app_localizations.dart';
@@ -24,13 +25,11 @@ class SettingsScreen extends StatelessWidget {
           padding: const EdgeInsets.all(Sp.x6),
           children: [
             if (session.isDemo) ...[
-              Container(
+              GlassPanel(
+                tint: brassOf(context),
+                radius: Corners.control,
                 padding: const EdgeInsets.symmetric(
                     horizontal: Sp.x4, vertical: Sp.x3),
-                decoration: BoxDecoration(
-                  color: brassOf(context).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(Corners.control),
-                ),
                 child: Row(
                   children: [
                     Icon(Icons.science_outlined,
@@ -151,23 +150,23 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _signOut(BuildContext context) async {
     final l = AppLocalizations.of(context);
     final session = context.read<Session>();
-    final ok = await showDialog<bool>(
+    final ok = await showGlassDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Corners.card)),
-        title: Text(l.settingsSignOutConfirm),
-        actions: [
-          TextButton(
+      title: l.settingsSignOutConfirm,
+      actions: [
+        Builder(
+          builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(l.commonCancel),
           ),
-          TextButton(
+        ),
+        Builder(
+          builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.commonConfirm),
           ),
-        ],
-      ),
+        ),
+      ],
     );
     if (ok == true) await session.signOut();
   }
@@ -175,25 +174,25 @@ class SettingsScreen extends StatelessWidget {
   Future<void> _cancelAccount(BuildContext context) async {
     final l = AppLocalizations.of(context);
     final session = context.read<Session>();
-    final ok = await showDialog<bool>(
+    final ok = await showGlassDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Corners.card)),
-        title: Text(l.settingsCancelConfirm),
-        content: Text(l.settingsCancelBody),
-        actions: [
-          TextButton(
+      title: l.settingsCancelConfirm,
+      content: Text(l.settingsCancelBody),
+      actions: [
+        Builder(
+          builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(l.commonCancel),
           ),
-          TextButton(
+        ),
+        Builder(
+          builder: (context) => TextButton(
             style: TextButton.styleFrom(foregroundColor: Atelier.danger),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.settingsCancelAccount),
           ),
-        ],
-      ),
+        ),
+      ],
     );
     if (ok != true || !context.mounted) return;
     try {
@@ -265,6 +264,7 @@ class _PickerRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Sp.x3),
       child: Row(
@@ -275,8 +275,14 @@ class _PickerRow<T> extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: isDark
+                  ? Colors.black.withValues(alpha: 0.22)
+                  : Colors.white.withValues(alpha: 0.42),
               borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.6),
+                width: 1,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

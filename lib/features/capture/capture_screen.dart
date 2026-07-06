@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show ImageFilter;
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -443,6 +444,27 @@ class _CameraFill extends StatelessWidget {
   }
 }
 
+/// Frosted dark glass used by the camera chrome — blurs the live preview.
+Widget _cameraGlass({required Widget child, double radius = 22}) {
+  return ClipRRect(
+    borderRadius: BorderRadius.circular(radius),
+    child: BackdropFilter(
+      filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.26),
+          borderRadius: BorderRadius.circular(radius),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.22),
+            width: 1,
+          ),
+        ),
+        child: child,
+      ),
+    ),
+  );
+}
+
 class _TopBar extends StatelessWidget {
   const _TopBar({
     required this.label,
@@ -462,48 +484,42 @@ class _TopBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
       child: Row(
         children: [
-          IconButton(
-            onPressed: onClose,
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.black.withValues(alpha: 0.3),
-              minimumSize: const Size(44, 44),
+          _cameraGlass(
+            child: IconButton(
+              onPressed: onClose,
+              icon: const Icon(Icons.close_rounded, color: Colors.white),
+              style: IconButton.styleFrom(minimumSize: const Size(44, 44)),
             ),
           ),
           const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.black.withValues(alpha: 0.35),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.25),
-                width: 0.5,
-              ),
-            ),
-            child: Text(
-              label,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1,
+          _cameraGlass(
+            radius: 20,
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 8),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1,
+                ),
               ),
             ),
           ),
           const Spacer(),
-          IconButton(
-            onPressed: onSwitch,
-            tooltip: switchTooltip,
-            icon: Icon(
-              Icons.cameraswitch_outlined,
-              color: onSwitch == null
-                  ? Colors.white.withValues(alpha: 0.25)
-                  : Colors.white,
-            ),
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.black.withValues(alpha: 0.3),
-              minimumSize: const Size(44, 44),
+          _cameraGlass(
+            child: IconButton(
+              onPressed: onSwitch,
+              tooltip: switchTooltip,
+              icon: Icon(
+                Icons.cameraswitch_outlined,
+                color: onSwitch == null
+                    ? Colors.white.withValues(alpha: 0.25)
+                    : Colors.white,
+              ),
+              style: IconButton.styleFrom(minimumSize: const Size(44, 44)),
             ),
           ),
         ],
@@ -553,18 +569,24 @@ class _HintStrip extends StatelessWidget {
       duration: Motion.standard,
       child: text.isEmpty
           ? const SizedBox(height: 32)
-          : Container(
+          : Center(
               key: ValueKey(text),
-              height: 32,
-              padding: const EdgeInsets.symmetric(horizontal: Sp.x4),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.35),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Text(
-                text,
-                style: const TextStyle(color: Colors.white, fontSize: 13),
+              child: _cameraGlass(
+                radius: 16,
+                child: Container(
+                  height: 32,
+                  padding: const EdgeInsets.symmetric(horizontal: Sp.x4),
+                  // Hug the text: an aligning Container would expand to the
+                  // full (bounded) width instead.
+                  child: Center(
+                    widthFactor: 1,
+                    child: Text(
+                      text,
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 13),
+                    ),
+                  ),
+                ),
               ),
             ),
     );
@@ -631,21 +653,20 @@ class _ReviewBar extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: OutlinedButton.icon(
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(44, 54),
-                foregroundColor: Colors.white,
-                side: BorderSide(
-                  color: Colors.white.withValues(alpha: 0.6),
-                  width: 1,
+            child: _cameraGlass(
+              radius: 27,
+              child: TextButton.icon(
+                style: TextButton.styleFrom(
+                  minimumSize: const Size(44, 54),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(27),
+                  ),
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(27),
-                ),
+                onPressed: onRetake,
+                icon: const Icon(Icons.refresh_rounded, size: 20),
+                label: Text(l.captureRetake),
               ),
-              onPressed: onRetake,
-              icon: const Icon(Icons.refresh_rounded, size: 20),
-              label: Text(l.captureRetake),
             ),
           ),
           const SizedBox(width: Sp.x4),
@@ -672,49 +693,59 @@ class _FallbackCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return ContourCard(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Icon(
-            denied
-                ? Icons.no_photography_outlined
-                : Icons.videocam_off_outlined,
-            size: 30,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: Sp.x3),
-          Text(
-            denied ? l.capturePermissionTitle : l.captureNoCameraTitle,
-            textAlign: TextAlign.center,
-            style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          const SizedBox(height: Sp.x2),
-          Text(
-            denied ? l.capturePermissionBody : l.captureNoCameraBody,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.5,
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
+    // The camera stage is always cinematic-dark; use dark glass regardless
+    // of the app theme so text stays legible over the black backdrop.
+    return _cameraGlass(
+      radius: Corners.card,
+      child: Padding(
+        padding: const EdgeInsets.all(Sp.x5),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Icon(
+              denied
+                  ? Icons.no_photography_outlined
+                  : Icons.videocam_off_outlined,
+              size: 30,
+              color: Colors.white.withValues(alpha: 0.8),
             ),
-          ),
-          const SizedBox(height: Sp.x5),
-          if (denied) ...[
-            BrassButton(
-              label: l.captureOpenSettings,
-              icon: Icons.settings_outlined,
-              onPressed: openAppSettings,
+            const SizedBox(height: Sp.x3),
+            Text(
+              denied ? l.capturePermissionTitle : l.captureNoCameraTitle,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
             ),
             const SizedBox(height: Sp.x2),
+            Text(
+              denied ? l.capturePermissionBody : l.captureNoCameraBody,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.5,
+                color: Colors.white.withValues(alpha: 0.72),
+              ),
+            ),
+            const SizedBox(height: Sp.x5),
+            if (denied) ...[
+              BrassButton(
+                label: l.captureOpenSettings,
+                icon: Icons.settings_outlined,
+                onPressed: openAppSettings,
+              ),
+              const SizedBox(height: Sp.x2),
+            ],
+            BrassButton(
+              label: l.captureUseSample,
+              icon: Icons.image_outlined,
+              onPressed: onUseSample,
+            ),
           ],
-          BrassButton(
-            label: l.captureUseSample,
-            icon: Icons.image_outlined,
-            onPressed: onUseSample,
-          ),
-        ],
+        ),
       ),
     );
   }

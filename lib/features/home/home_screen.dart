@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../app/measure_flow.dart';
 import '../../app/records_store.dart';
+import '../../design/glass.dart';
 import '../../design/tick_ruler.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets.dart';
@@ -67,12 +68,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  IconButton(
-                    onPressed: () => context.push('/settings'),
-                    tooltip: l.homeSettings,
-                    icon: Icon(
-                      Icons.tune_rounded,
-                      color: scheme.onSurfaceVariant,
+                  Tooltip(
+                    message: l.homeSettings,
+                    child: GlassChip(
+                      radius: 22,
+                      padding: const EdgeInsets.all(10),
+                      onTap: () => context.push('/settings'),
+                      child: Icon(
+                        Icons.tune_rounded,
+                        size: 22,
+                        color: scheme.onSurfaceVariant,
+                      ),
                     ),
                   ),
                 ],

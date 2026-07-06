@@ -10,6 +10,7 @@ import 'app/measure_flow.dart';
 import 'app/records_store.dart';
 import 'app/router.dart';
 import 'app/session.dart';
+import 'design/glass.dart';
 import 'design/theme.dart';
 import 'l10n/app_localizations.dart';
 
@@ -65,6 +66,15 @@ class _ContourAppState extends State<ContourApp> {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
+          // One ambient light source behind the whole Navigator; scaffolds
+          // are transparent so every glass surface refracts it.
+          builder: (context, child) => Stack(
+            fit: StackFit.expand,
+            children: [
+              const AmbientBackdrop(),
+              ?child,
+            ],
+          ),
           routerConfig: router,
         ),
       ),

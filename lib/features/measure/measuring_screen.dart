@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../api/measure_api.dart';
 import '../../app/measure_flow.dart';
 import '../../app/session.dart';
+import '../../design/glass.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets.dart';
 import '../../l10n/app_localizations.dart';
@@ -89,15 +90,22 @@ class _MeasuringScreenState extends State<MeasuringScreen>
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 if (_error == null) ...[
-                  SizedBox(
-                    height: 180,
-                    child: AnimatedBuilder(
-                      animation: _spin,
-                      builder: (context, _) => CustomPaint(
-                        painter: _MeasuringRingPainter(
-                          t: _spin.value,
-                          ink: scheme.onSurfaceVariant,
-                          brass: brassOf(context),
+                  Center(
+                    child: GlassPanel(
+                      radius: 130,
+                      padding: const EdgeInsets.all(Sp.x8),
+                      child: SizedBox(
+                        width: 168,
+                        height: 168,
+                        child: AnimatedBuilder(
+                          animation: _spin,
+                          builder: (context, _) => CustomPaint(
+                            painter: _MeasuringRingPainter(
+                              t: _spin.value,
+                              ink: scheme.onSurfaceVariant,
+                              brass: brassOf(context),
+                            ),
+                          ),
                         ),
                       ),
                     ),

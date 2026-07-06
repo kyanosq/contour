@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -53,12 +55,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
       body: SafeArea(
         child: WorkingVeil(
           visible: _saving,
-          child: Column(
+          child: Stack(
             children: [
-              Expanded(
+              Positioned.fill(
                 child: ListView(
-                  padding:
-                      const EdgeInsets.fromLTRB(Sp.x6, Sp.x2, Sp.x6, Sp.x6),
+                  padding: EdgeInsets.fromLTRB(Sp.x6, Sp.x2, Sp.x6,
+                      invalidCount > 0 ? 156 : 128),
                   children: [
                     FunnelProgress(
                         step: 3, totalSteps: 3, label: l.resultsTitle),
@@ -118,42 +120,59 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   ],
                 ),
               ),
-              // save bar
-              Container(
-                padding:
-                    const EdgeInsets.fromLTRB(Sp.x6, Sp.x3, Sp.x6, Sp.x4),
-                decoration: BoxDecoration(
-                  color: scheme.surface,
-                  border: Border(
-                    top: BorderSide(color: scheme.outlineVariant, width: 0.5),
-                  ),
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (invalidCount > 0) ...[
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+              // Docked save bar — frosted so the sheet scrolls beneath it.
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: ClipRect(
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 22, sigmaY: 22),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(
+                          Sp.x6, Sp.x3, Sp.x6, Sp.x4),
+                      decoration: BoxDecoration(
+                        color: scheme.surface.withValues(alpha: 0.28),
+                        border: Border(
+                          top: BorderSide(
+                            color: Colors.white.withValues(
+                                alpha: Theme.of(context).brightness ==
+                                        Brightness.dark
+                                    ? 0.10
+                                    : 0.55),
+                            width: 1,
+                          ),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.error_outline,
-                              size: 15, color: Atelier.danger),
-                          const SizedBox(width: 6),
-                          Text(
-                            l.resultsInvalid(invalidCount),
-                            style: const TextStyle(
-                                fontSize: 12.5, color: Atelier.danger),
+                          if (invalidCount > 0) ...[
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.error_outline,
+                                    size: 15, color: Atelier.danger),
+                                const SizedBox(width: 6),
+                                Text(
+                                  l.resultsInvalid(invalidCount),
+                                  style: const TextStyle(
+                                      fontSize: 12.5, color: Atelier.danger),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: Sp.x2),
+                          ],
+                          BrassButton(
+                            label: _saving ? l.saving : l.resultsSave,
+                            icon: Icons.bookmark_added_outlined,
+                            onPressed:
+                                invalidCount > 0 || _saving ? null : _save,
                           ),
                         ],
                       ),
-                      const SizedBox(height: Sp.x2),
-                    ],
-                    BrassButton(
-                      label: _saving ? l.saving : l.resultsSave,
-                      icon: Icons.bookmark_added_outlined,
-                      onPressed:
-                          invalidCount > 0 || _saving ? null : _save,
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
@@ -319,10 +338,17 @@ class _Stepper extends StatelessWidget {
             child: Icon(icon, size: 19, color: scheme.onSurface),
           ),
         );
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: isDark
+            ? Colors.white.withValues(alpha: 0.07)
+            : Colors.white.withValues(alpha: 0.55),
         borderRadius: BorderRadius.circular(Corners.chip),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.7),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

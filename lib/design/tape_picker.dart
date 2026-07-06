@@ -108,8 +108,20 @@ class _TapePickerState extends State<TapePicker> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            // The tape
-            NotificationListener<ScrollNotification>(
+            // The tape — edge fade via alpha mask so it sits on any surface,
+            // glass included.
+            ShaderMask(
+              shaderCallback: (rect) => const LinearGradient(
+                colors: [
+                  Color(0x00FFFFFF),
+                  Color(0xFFFFFFFF),
+                  Color(0xFFFFFFFF),
+                  Color(0x00FFFFFF),
+                ],
+                stops: [0, 0.16, 0.84, 1],
+              ).createShader(rect),
+              blendMode: BlendMode.dstIn,
+              child: NotificationListener<ScrollNotification>(
               onNotification: (n) {
                 if (n is ScrollStartNotification) _dragging = true;
                 if (n is ScrollEndNotification) _dragging = false;
@@ -141,23 +153,6 @@ class _TapePickerState extends State<TapePicker> {
                   ),
                 ),
               ),
-            ),
-            // Edge fades
-            Positioned.fill(
-              child: IgnorePointer(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        scheme.surfaceContainerLow,
-                        scheme.surfaceContainerLow.withValues(alpha: 0),
-                        scheme.surfaceContainerLow.withValues(alpha: 0),
-                        scheme.surfaceContainerLow,
-                      ],
-                      stops: const [0, 0.18, 0.82, 1],
-                    ),
-                  ),
-                ),
               ),
             ),
             // Brass needle

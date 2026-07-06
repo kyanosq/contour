@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../api/measure_api.dart';
 import '../../app/records_store.dart';
 import '../../app/session.dart';
+import '../../design/glass.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets.dart';
 import '../../l10n/app_localizations.dart';
@@ -74,25 +75,25 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
+    final ok = await showGlassDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Corners.card)),
-        title: Text(l.recordsDeleteConfirm),
-        content: Text(l.recordsDeleteBody),
-        actions: [
-          TextButton(
+      title: l.recordsDeleteConfirm,
+      content: Text(l.recordsDeleteBody),
+      actions: [
+        Builder(
+          builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(l.commonCancel),
           ),
-          TextButton(
+        ),
+        Builder(
+          builder: (context) => TextButton(
             style: TextButton.styleFrom(foregroundColor: Atelier.danger),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.recordsDelete),
           ),
-        ],
-      ),
+        ),
+      ],
     );
     if (ok != true || !mounted) return;
     try {

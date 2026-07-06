@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/records_store.dart';
+import '../../design/glass.dart';
 import '../../design/tick_ruler.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets.dart';
@@ -43,25 +44,25 @@ class _RecordsScreenState extends State<RecordsScreen> {
 
   Future<bool> _confirmDelete(MeasureRecord r) async {
     final l = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
+    final ok = await showGlassDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Corners.card)),
-        title: Text(l.recordsDeleteConfirm),
-        content: Text(l.recordsDeleteBody),
-        actions: [
-          TextButton(
+      title: l.recordsDeleteConfirm,
+      content: Text(l.recordsDeleteBody),
+      actions: [
+        Builder(
+          builder: (context) => TextButton(
             onPressed: () => Navigator.of(context).pop(false),
             child: Text(l.commonCancel),
           ),
-          TextButton(
+        ),
+        Builder(
+          builder: (context) => TextButton(
             style: TextButton.styleFrom(foregroundColor: Atelier.danger),
             onPressed: () => Navigator.of(context).pop(true),
             child: Text(l.recordsDelete),
           ),
-        ],
-      ),
+        ),
+      ],
     );
     return ok ?? false;
   }

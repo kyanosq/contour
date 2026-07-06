@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../app/session.dart';
+import '../../design/glass.dart';
 import '../../design/tick_ruler.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Full privacy policy page (settings). Remote text with built-in fallback.
@@ -64,20 +66,21 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
   }
 }
 
-/// Bottom-sheet variant used from the login screen.
+/// Bottom-sheet variant used from the login screen — frosted glass slab.
 Future<void> showPrivacySheet(BuildContext context) {
   final l = AppLocalizations.of(context);
   return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    backgroundColor: Theme.of(context).colorScheme.surface,
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.vertical(top: Radius.circular(Corners.card)),
-    ),
+    backgroundColor: Colors.transparent,
     builder: (context) => DraggableScrollableSheet(
       expand: false,
       initialChildSize: 0.7,
-      builder: (context, scroll) => ListView(
+      builder: (context, scroll) => GlassPanel(
+        frosted: true,
+        radius: Corners.card,
+        padding: EdgeInsets.zero,
+        child: ListView(
         controller: scroll,
         padding: const EdgeInsets.all(Sp.x6),
         children: [
@@ -103,6 +106,7 @@ Future<void> showPrivacySheet(BuildContext context) {
           ),
           const SizedBox(height: Sp.x8),
         ],
+        ),
       ),
     ),
   );
@@ -113,43 +117,42 @@ Future<void> showPrivacySheet(BuildContext context) {
 Future<bool> showPrivacyGate(BuildContext context) async {
   final l = AppLocalizations.of(context);
   final scheme = Theme.of(context).colorScheme;
-  final result = await showDialog<bool>(
+  final result = await showGlassDialog<bool>(
     context: context,
-    barrierDismissible: false,
-    builder: (context) => PopScope(
-      canPop: false,
-      child: AlertDialog(
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(Corners.card)),
-        title: Text(l.privacyTitle),
-        content: SingleChildScrollView(
+    dismissible: false,
+    title: l.privacyTitle,
+    content: Builder(
+      builder: (context) => ConstrainedBox(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.sizeOf(context).height * 0.42,
+        ),
+        child: SingleChildScrollView(
           child: Text(
             l.privacyBuiltin,
-            style: TextStyle(
-                fontSize: 14, height: 1.65, color: scheme.onSurface),
+            style:
+                TextStyle(fontSize: 14, height: 1.65, color: scheme.onSurface),
           ),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              l.privacyDecline,
-              style: TextStyle(color: scheme.onSurfaceVariant),
-            ),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: scheme.primary,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(Corners.control),
-              ),
-            ),
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(l.privacyAccept),
-          ),
-        ],
       ),
     ),
+    actions: [
+      Builder(
+        builder: (context) => TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            l.privacyDecline,
+            style: TextStyle(color: scheme.onSurfaceVariant),
+          ),
+        ),
+      ),
+      Builder(
+        builder: (context) => BrassButton(
+          label: l.privacyAccept,
+          expanded: false,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+      ),
+    ],
   );
   return result ?? false;
 }

@@ -33,7 +33,9 @@ ThemeData _base(Brightness b) {
     useMaterial3: true,
     brightness: b,
     colorScheme: scheme,
-    scaffoldBackgroundColor: scheme.surface,
+    // Transparent: the AmbientBackdrop behind the Navigator is the real
+    // page background (see main.dart builder).
+    scaffoldBackgroundColor: Colors.transparent,
     splashFactory: InkSparkle.splashFactory,
     fontFamilyFallback: const ['PingFang SC', 'Heiti SC'],
     textTheme: textTheme,

@@ -198,34 +198,19 @@ class _LoginScreenState extends State<LoginScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(44, 50),
-                              side: BorderSide(
-                                  color: scheme.outlineVariant, width: 0.8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              foregroundColor: scheme.onSurface,
-                            ),
+                          child: GlassButton(
+                            label: l.loginGuest,
+                            icon: Icons.bolt_outlined,
                             onPressed: _busy ? null : _guestLogin,
-                            child: Text(l.loginGuest),
                           ),
                         ),
                         const SizedBox(width: Sp.x3),
                         Expanded(
-                          child: OutlinedButton(
-                            style: OutlinedButton.styleFrom(
-                              minimumSize: const Size(44, 50),
-                              side: BorderSide(
-                                  color: brassOf(context), width: 0.8),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              foregroundColor: brassOf(context),
-                            ),
+                          child: GlassButton(
+                            label: l.loginDemo,
+                            icon: Icons.auto_awesome_outlined,
+                            accent: true,
                             onPressed: _busy ? null : _demoLogin,
-                            child: Text(l.loginDemo),
                           ),
                         ),
                       ],

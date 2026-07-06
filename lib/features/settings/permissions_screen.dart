@@ -160,9 +160,22 @@ class _PermRow extends StatelessWidget {
                   horizontal: Sp.x3, vertical: 5),
               decoration: BoxDecoration(
                 color: isGranted
-                    ? Atelier.success.withValues(alpha: 0.12)
-                    : scheme.surfaceContainerHighest,
+                    ? Atelier.success.withValues(alpha: 0.14)
+                    : Colors.white.withValues(
+                        alpha: Theme.of(context).brightness == Brightness.dark
+                            ? 0.08
+                            : 0.5),
                 borderRadius: BorderRadius.circular(Corners.chip),
+                border: Border.all(
+                  color: isGranted
+                      ? Atelier.success.withValues(alpha: 0.3)
+                      : Colors.white.withValues(
+                          alpha:
+                              Theme.of(context).brightness == Brightness.dark
+                                  ? 0.12
+                                  : 0.65),
+                  width: 1,
+                ),
               ),
               child: Text(
                 status == null ? '—' : (isGranted ? granted : denied),

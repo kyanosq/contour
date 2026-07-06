@@ -404,6 +404,7 @@ class _Segmented<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Row(
       children: [
         for (final entry in items.entries) ...[
@@ -420,14 +421,25 @@ class _Segmented<T> extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: value == entry.key
                       ? scheme.onSurface
-                      : scheme.surfaceContainerLow,
+                      : Colors.white.withValues(alpha: isDark ? 0.06 : 0.38),
                   borderRadius: BorderRadius.circular(Corners.control),
                   border: Border.all(
                     color: value == entry.key
                         ? Colors.transparent
-                        : scheme.outlineVariant,
-                    width: 0.5,
+                        : Colors.white
+                            .withValues(alpha: isDark ? 0.12 : 0.65),
+                    width: 1,
                   ),
+                  boxShadow: value == entry.key
+                      ? [
+                          BoxShadow(
+                            color: scheme.onSurface
+                                .withValues(alpha: isDark ? 0.25 : 0.28),
+                            blurRadius: 14,
+                            offset: const Offset(0, 5),
+                          ),
+                        ]
+                      : null,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -496,11 +508,18 @@ class _UnitToggle extends StatelessWidget {
           ),
         );
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHighest,
+        color: isDark
+            ? Colors.black.withValues(alpha: 0.22)
+            : Colors.white.withValues(alpha: 0.42),
         borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.6),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

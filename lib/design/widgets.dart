@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'glass.dart';
 import 'tokens.dart';
 
-/// Primary action button — brass, pill-shaped, with press feedback.
+/// Primary action button — polished brass bar with a soft glow.
 class BrassButton extends StatelessWidget {
   const BrassButton({
     super.key,
@@ -23,38 +24,77 @@ class BrassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final bg = destructive ? Atelier.danger : scheme.primary;
-    final child = FilledButton(
-      style: FilledButton.styleFrom(
-        backgroundColor: bg,
-        foregroundColor: scheme.onPrimary,
-        disabledBackgroundColor: bg.withValues(alpha: 0.35),
-        minimumSize: const Size(64, 54),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(27)),
-        textStyle: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.4,
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final enabled = onPressed != null;
+    final base = destructive ? Atelier.danger : scheme.primary;
+    final top = destructive
+        ? const Color(0xFFC85B52)
+        : (isDark ? const Color(0xFFD4B87E) : const Color(0xFFBD9C63));
+
+    final button = AnimatedOpacity(
+      duration: Motion.standard,
+      opacity: enabled ? 1 : 0.45,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(27),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [top, base],
+          ),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: isDark ? 0.22 : 0.45),
+            width: 1,
+          ),
+          boxShadow: enabled
+              ? [
+                  BoxShadow(
+                    color: base.withValues(alpha: isDark ? 0.35 : 0.38),
+                    blurRadius: 22,
+                    offset: const Offset(0, 8),
+                  ),
+                ]
+              : null,
+        ),
+        child: FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: Colors.transparent,
+            disabledBackgroundColor: Colors.transparent,
+            foregroundColor: scheme.onPrimary,
+            disabledForegroundColor: scheme.onPrimary,
+            shadowColor: Colors.transparent,
+            minimumSize: const Size(64, 54),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(27),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.4,
+            ),
+          ),
+          onPressed: !enabled
+              ? null
+              : () {
+                  HapticFeedback.lightImpact();
+                  onPressed!();
+                },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 20),
+                const SizedBox(width: Sp.x2),
+              ],
+              Text(label),
+            ],
+          ),
         ),
       ),
-      onPressed: onPressed == null
-          ? null
-          : () {
-              HapticFeedback.lightImpact();
-              onPressed!();
-            },
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 20),
-            const SizedBox(width: Sp.x2),
-          ],
-          Text(label),
-        ],
-      ),
     );
-    return expanded ? SizedBox(width: double.infinity, child: child) : child;
+    return expanded
+        ? SizedBox(width: double.infinity, child: button)
+        : button;
   }
 }
 
@@ -79,50 +119,85 @@ class ThreadButton extends StatelessWidget {
   }
 }
 
-/// Card with the atelier hairline + soft shadow.
+/// Secondary pill on glass — used for the login channels and review actions.
+class GlassButton extends StatelessWidget {
+  const GlassButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+    this.accent = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+
+  /// Brass text/border treatment.
+  final bool accent;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final fg = accent ? brassOf(context) : scheme.onSurface;
+    return GlassPanel(
+      radius: 25,
+      padding: EdgeInsets.zero,
+      onTap: onPressed == null
+          ? null
+          : () {
+              HapticFeedback.lightImpact();
+              onPressed!();
+            },
+      child: SizedBox(
+        height: 50,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 18, color: fg),
+              const SizedBox(width: Sp.x2),
+            ],
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: fg,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// House card — glass over the ambient backdrop.
 class ContourCard extends StatelessWidget {
   const ContourCard({
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(Sp.x5),
     this.onTap,
+    this.frosted = false,
+    this.tint,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
+  final bool frosted;
+  final Color? tint;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final card = AnimatedContainer(
-      duration: Motion.standard,
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(Corners.card),
-        border: Border.all(color: scheme.outlineVariant, width: 0.5),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Atelier.ink.withValues(alpha: 0.05),
-                  blurRadius: 24,
-                  offset: const Offset(0, 8),
-                ),
-              ],
-      ),
+    return GlassPanel(
       padding: padding,
+      onTap: onTap,
+      frosted: frosted,
+      tint: tint,
       child: child,
-    );
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(Corners.card),
-        onTap: onTap,
-        child: card,
-      ),
     );
   }
 }
@@ -180,12 +255,17 @@ class WorkingVeil extends StatelessWidget {
               child: Container(
                 color: Theme.of(
                   context,
-                ).colorScheme.surface.withValues(alpha: 0.55),
+                ).colorScheme.surface.withValues(alpha: 0.4),
                 alignment: Alignment.center,
-                child: const SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: CircularProgressIndicator(strokeWidth: 2.4),
+                child: GlassPanel(
+                  frosted: true,
+                  radius: 20,
+                  padding: const EdgeInsets.all(Sp.x5),
+                  child: const SizedBox(
+                    width: 28,
+                    height: 28,
+                    child: CircularProgressIndicator(strokeWidth: 2.4),
+                  ),
                 ),
               ),
             ),
@@ -200,18 +280,36 @@ void showToast(BuildContext context, String message, {bool error = false}) {
   messenger?.hideCurrentSnackBar();
   messenger?.showSnackBar(
     SnackBar(
-      content: Row(
-        children: [
-          Icon(
-            error ? Icons.error_outline : Icons.check_circle_outline,
-            color: error ? const Color(0xFFE7A6A1) : const Color(0xFFA9CBB9),
-            size: 18,
-          ),
-          const SizedBox(width: Sp.x2),
-          Expanded(child: Text(message)),
-        ],
-      ),
+      elevation: 0,
+      backgroundColor: Colors.transparent,
+      behavior: SnackBarBehavior.floating,
+      padding: EdgeInsets.zero,
       duration: const Duration(seconds: 3),
+      content: GlassPanel(
+        frosted: true,
+        radius: 18,
+        padding:
+            const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+        child: Row(
+          children: [
+            Icon(
+              error ? Icons.error_outline : Icons.check_circle_outline,
+              color: error ? Atelier.danger : Atelier.success,
+              size: 18,
+            ),
+            const SizedBox(width: Sp.x2),
+            Expanded(
+              child: Text(
+                message,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     ),
   );
 }

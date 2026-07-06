@@ -57,6 +57,13 @@ class SuccessScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: brassOf(context).withValues(alpha: 0.14),
                     border: Border.all(color: brassOf(context), width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: brassOf(context).withValues(alpha: 0.38),
+                        blurRadius: 44,
+                        spreadRadius: 2,
+                      ),
+                    ],
                   ),
                   child: Icon(Icons.check_rounded,
                       size: 42, color: brassOf(context)),
