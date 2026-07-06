@@ -119,7 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
 
               // actions
-              BrassButton(
+              AccentButton(
                 label: l.homeStart,
                 icon: Icons.straighten_rounded,
                 onPressed: () {
@@ -142,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   children: [
                     Icon(Icons.receipt_long_outlined,
-                        size: 22, color: brassOf(context)),
+                        size: 22, color: accentOf(context)),
                     const SizedBox(width: Sp.x3),
                     Expanded(
                       child: Text(
@@ -162,7 +162,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: Sp.x3, vertical: 4),
                               decoration: BoxDecoration(
-                                color: brassOf(context)
+                                color: accentOf(context)
                                     .withValues(alpha: 0.14),
                                 borderRadius:
                                     BorderRadius.circular(Corners.chip),
@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
                                   fontFeatures: Numerals.features,
-                                  color: brassOf(context),
+                                  color: accentOf(context),
                                 ),
                               ),
                             ),

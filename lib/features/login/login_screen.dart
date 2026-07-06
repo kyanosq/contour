@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       crossFadeState: _accountFormOpen
                           ? CrossFadeState.showSecond
                           : CrossFadeState.showFirst,
-                      firstChild: BrassButton(
+                      firstChild: AccentButton(
                         label: l.loginAccount,
                         icon: Icons.person_outline,
                         onPressed: () =>
@@ -186,7 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onSubmitted: (_) => _accountLogin(),
                             ),
                             const SizedBox(height: Sp.x5),
-                            BrassButton(
+                            AccentButton(
                               label: l.loginAccount,
                               onPressed: _accountLogin,
                             ),
@@ -235,7 +235,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           height: 44,
                           child: Checkbox(
                             value: _agreed,
-                            activeColor: brassOf(context),
+                            activeColor: accentOf(context),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(6),
                             ),
@@ -259,7 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: brassOf(context),
+                              color: accentOf(context),
                             ),
                           ),
                         ),

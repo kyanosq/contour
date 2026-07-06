@@ -77,7 +77,7 @@ class _RecordsScreenState extends State<RecordsScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: store.refresh,
-          color: brassOf(context),
+          color: accentOf(context),
           child: store.records.isEmpty && !store.refreshing
               ? _EmptyState(l: l)
               : ListView.separated(
@@ -152,12 +152,12 @@ class _RecordCard extends StatelessWidget {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: brassOf(context).withValues(alpha: 0.12),
+              color: accentOf(context).withValues(alpha: 0.12),
             ),
             child: Icon(
               female ? Icons.female_rounded : Icons.male_rounded,
               size: 22,
-              color: brassOf(context),
+              color: accentOf(context),
             ),
           ),
           const SizedBox(width: Sp.x4),

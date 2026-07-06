@@ -42,7 +42,7 @@ class SuccessScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              // brass check
+              // accent check
               TweenAnimationBuilder<double>(
                 tween: Tween(begin: 0, end: 1),
                 duration: Motion.emphasized,
@@ -55,18 +55,18 @@ class SuccessScreen extends StatelessWidget {
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: brassOf(context).withValues(alpha: 0.14),
-                    border: Border.all(color: brassOf(context), width: 1.5),
+                    color: accentOf(context).withValues(alpha: 0.14),
+                    border: Border.all(color: accentOf(context), width: 1.5),
                     boxShadow: [
                       BoxShadow(
-                        color: brassOf(context).withValues(alpha: 0.38),
+                        color: accentOf(context).withValues(alpha: 0.38),
                         blurRadius: 44,
                         spreadRadius: 2,
                       ),
                     ],
                   ),
                   child: Icon(Icons.check_rounded,
-                      size: 42, color: brassOf(context)),
+                      size: 42, color: accentOf(context)),
                 ),
               ),
               const SizedBox(height: Sp.x6),
@@ -90,21 +90,31 @@ class SuccessScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(Sp.x5),
                     child: Column(
                       children: [
-                        SizedBox(
-                          width: 168,
-                          height: 168,
-                          child: QrImageView(
-                            data: qr,
-                            version: QrVersions.auto,
-                            eyeStyle: QrEyeStyle(
-                              eyeShape: QrEyeShape.square,
-                              color: scheme.onSurface,
+                        // White plate: scanners need dark-on-light; an
+                        // inverted QR on the dark theme would not read.
+                        Container(
+                          padding: const EdgeInsets.all(Sp.x3),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius:
+                                BorderRadius.circular(Corners.control),
+                          ),
+                          child: SizedBox(
+                            width: 156,
+                            height: 156,
+                            child: QrImageView(
+                              data: qr,
+                              version: QrVersions.auto,
+                              eyeStyle: const QrEyeStyle(
+                                eyeShape: QrEyeShape.square,
+                                color: Color(0xFF0B1020),
+                              ),
+                              dataModuleStyle: const QrDataModuleStyle(
+                                dataModuleShape: QrDataModuleShape.square,
+                                color: Color(0xFF0B1020),
+                              ),
+                              backgroundColor: Colors.white,
                             ),
-                            dataModuleStyle: QrDataModuleStyle(
-                              dataModuleShape: QrDataModuleShape.square,
-                              color: scheme.onSurface,
-                            ),
-                            backgroundColor: Colors.transparent,
                           ),
                         ),
                         const SizedBox(height: Sp.x3),
@@ -126,7 +136,7 @@ class SuccessScreen extends StatelessWidget {
               const Spacer(),
               if (qr != null && qr.isNotEmpty)
                 Builder(
-                  builder: (btnContext) => BrassButton(
+                  builder: (btnContext) => AccentButton(
                     label: l.successShare,
                     icon: Icons.ios_share_rounded,
                     onPressed: () => _shareQr(btnContext, qr),

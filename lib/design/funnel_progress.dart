@@ -30,7 +30,7 @@ class FunnelProgress extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 fontFeatures: Numerals.features,
-                color: brassOf(context),
+                color: accentOf(context),
                 letterSpacing: 1,
               ),
             ),
@@ -64,7 +64,7 @@ class FunnelProgress extends StatelessWidget {
           builder: (context, v, _) => TickRuler(
             height: 12,
             highlightFraction: v,
-            highlightColor: brassOf(context),
+            highlightColor: accentOf(context),
           ),
         ),
       ],

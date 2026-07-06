@@ -146,7 +146,7 @@ Future<bool> showPrivacyGate(BuildContext context) async {
         ),
       ),
       Builder(
-        builder: (context) => BrassButton(
+        builder: (context) => AccentButton(
           label: l.privacyAccept,
           expanded: false,
           onPressed: () => Navigator.of(context).pop(true),

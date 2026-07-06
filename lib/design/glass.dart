@@ -33,7 +33,7 @@ class _AmbientPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
 
-    // Base wash.
+    // Base wash — Obsidian (deep) vs Graphite (lifted charcoal).
     canvas.drawRect(
       rect,
       Paint()
@@ -41,8 +41,8 @@ class _AmbientPainter extends CustomPainter {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: isDark
-              ? const [Color(0xFF0D101C), Color(0xFF12172A), Color(0xFF0C0F1A)]
-              : const [Color(0xFFFBF8F1), Color(0xFFF6F1E7), Color(0xFFF2ECDF)],
+              ? const [Color(0xFF05070D), Color(0xFF0A0F1C), Color(0xFF060911)]
+              : const [Color(0xFF181D29), Color(0xFF1B212F), Color(0xFF141822)],
         ).createShader(rect),
     );
 
@@ -59,25 +59,25 @@ class _AmbientPainter extends CustomPainter {
 
     final w = size.width, h = size.height;
     if (isDark) {
-      // Brass aurora + indigo depths.
-      blob(Offset(w * 0.85, h * 0.06), w * 0.75,
-          const Color(0xFFC4A46B).withValues(alpha: 0.16));
-      blob(Offset(w * 0.06, h * 0.34), w * 0.7,
-          const Color(0xFF3B4A8F).withValues(alpha: 0.22));
-      blob(Offset(w * 0.75, h * 0.85), w * 0.85,
-          const Color(0xFF23407A).withValues(alpha: 0.20));
-      blob(Offset(w * 0.2, h * 0.98), w * 0.5,
-          const Color(0xFFC4A46B).withValues(alpha: 0.07));
+      // Lumen aurora + indigo depths.
+      blob(Offset(w * 0.85, h * 0.04), w * 0.72,
+          const Color(0xFF35D0C4).withValues(alpha: 0.11));
+      blob(Offset(w * 0.04, h * 0.32), w * 0.7,
+          const Color(0xFF31418F).withValues(alpha: 0.20));
+      blob(Offset(w * 0.78, h * 0.86), w * 0.85,
+          const Color(0xFF14425C).withValues(alpha: 0.22));
+      blob(Offset(w * 0.16, h * 0.99), w * 0.5,
+          const Color(0xFF35D0C4).withValues(alpha: 0.05));
     } else {
-      // Morning-atelier window light.
-      blob(Offset(w * 0.88, h * 0.02), w * 0.8,
-          const Color(0xFFE9C892).withValues(alpha: 0.42));
-      blob(Offset(w * 0.02, h * 0.30), w * 0.72,
-          const Color(0xFFCBD4EC).withValues(alpha: 0.50));
-      blob(Offset(w * 0.85, h * 0.78), w * 0.9,
-          const Color(0xFFE5D3AE).withValues(alpha: 0.38));
-      blob(Offset(w * 0.12, h * 0.96), w * 0.55,
-          const Color(0xFFD9DFF0).withValues(alpha: 0.42));
+      // Same night, one lamp brighter.
+      blob(Offset(w * 0.85, h * 0.04), w * 0.75,
+          const Color(0xFF3ADACE).withValues(alpha: 0.13));
+      blob(Offset(w * 0.04, h * 0.30), w * 0.72,
+          const Color(0xFF44549E).withValues(alpha: 0.24));
+      blob(Offset(w * 0.82, h * 0.84), w * 0.9,
+          const Color(0xFF1B506D).withValues(alpha: 0.26));
+      blob(Offset(w * 0.14, h * 0.98), w * 0.55,
+          const Color(0xFF3ADACE).withValues(alpha: 0.06));
     }
 
     // Diagonal light shaft (very faint) — echoes the studio photos. Soft
@@ -95,7 +95,7 @@ class _AmbientPainter extends CustomPainter {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Colors.white.withValues(alpha: isDark ? 0.016 : 0.10),
+            Colors.white.withValues(alpha: isDark ? 0.016 : 0.028),
             Colors.white.withValues(alpha: 0),
           ],
         ).createShader(rect)
@@ -131,7 +131,7 @@ class GlassPanel extends StatelessWidget {
   final double radius;
   final bool frosted;
 
-  /// Optional colored tint mixed into the fill (e.g. brass banner).
+  /// Optional colored tint mixed into the fill (e.g. accent banner).
   final Color? tint;
   final VoidCallback? onTap;
   final double? borderAlpha;
@@ -141,12 +141,13 @@ class GlassPanel extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final r = BorderRadius.circular(radius);
 
+    // Both variants are dark glass; Graphite runs slightly milkier.
     final fillTop = isDark
         ? Colors.white.withValues(alpha: 0.10)
-        : Colors.white.withValues(alpha: 0.62);
+        : Colors.white.withValues(alpha: 0.13);
     final fillBottom = isDark
         ? Colors.white.withValues(alpha: 0.045)
-        : Colors.white.withValues(alpha: 0.34);
+        : Colors.white.withValues(alpha: 0.06);
 
     Widget inner = Stack(
       children: [
@@ -162,7 +163,7 @@ class GlassPanel extends StatelessWidget {
                 gradient: LinearGradient(
                   colors: [
                     Colors.white.withValues(alpha: 0),
-                    Colors.white.withValues(alpha: isDark ? 0.35 : 0.9),
+                    Colors.white.withValues(alpha: isDark ? 0.35 : 0.42),
                     Colors.white.withValues(alpha: 0),
                   ],
                 ),
@@ -198,7 +199,7 @@ class GlassPanel extends StatelessWidget {
         ),
         border: Border.all(
           color: Colors.white
-              .withValues(alpha: borderAlpha ?? (isDark ? 0.14 : 0.72)),
+              .withValues(alpha: borderAlpha ?? (isDark ? 0.14 : 0.17)),
           width: 1,
         ),
       ),
@@ -219,9 +220,7 @@ class GlassPanel extends StatelessWidget {
         borderRadius: r,
         boxShadow: [
           BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.42)
-                : Atelier.ink.withValues(alpha: 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.42 : 0.36),
             blurRadius: 30,
             offset: const Offset(0, 12),
           ),

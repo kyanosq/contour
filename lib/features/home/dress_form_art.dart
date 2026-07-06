@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../design/tokens.dart';
 
 /// The Contour hero: a tailor's dress form drawn as a single measured
-/// line, with brass measuring bands at bust / waist / hip. Animates in by
+/// line, with accent measuring bands at bust / waist / hip. Animates in by
 /// tracing the path (draw-in), like chalk on wool.
 class DressFormArt extends StatefulWidget {
   const DressFormArt({
@@ -56,7 +56,7 @@ class _DressFormArtState extends State<DressFormArt>
         painter: _DressFormPainter(
           progress: Curves.easeInOutCubic.transform(_c.value),
           ink: scheme.onSurface,
-          brass: brassOf(context),
+          accent: accentOf(context),
           thread: scheme.onSurfaceVariant,
           labels: widget.bandLabels,
         ),
@@ -69,14 +69,14 @@ class _DressFormPainter extends CustomPainter {
   _DressFormPainter({
     required this.progress,
     required this.ink,
-    required this.brass,
+    required this.accent,
     required this.thread,
     required this.labels,
   });
 
   final double progress;
   final Color ink;
-  final Color brass;
+  final Color accent;
   final Color thread;
   final List<String> labels;
 
@@ -183,8 +183,8 @@ class _DressFormPainter extends CustomPainter {
       ];
       final bandPaint = Paint()
         ..strokeWidth = 1.2
-        ..color = brass.withValues(alpha: bandAlpha);
-      final dot = Paint()..color = brass.withValues(alpha: bandAlpha);
+        ..color = accent.withValues(alpha: bandAlpha);
+      final dot = Paint()..color = accent.withValues(alpha: bandAlpha);
 
       for (var i = 0; i < bands.length; i++) {
         final (x0, x1, y) = bands[i];
@@ -229,5 +229,5 @@ class _DressFormPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_DressFormPainter old) =>
-      old.progress != progress || old.ink != ink || old.brass != brass;
+      old.progress != progress || old.ink != ink || old.accent != accent;
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../design/tokens.dart';
+
 /// Dashed pose-guide silhouettes for the capture screen. Stylized single-line
 /// figures (front A-pose / side profile), drawn from normalized anchor points
 /// smoothed into curves — crafted to read as "stand like this", not anatomy.
@@ -190,9 +192,9 @@ class LevelRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brass = Color(0xFFC4A46B);
+    const accent = Atelier.accentBright;
     final ringColor =
-        level ? brass : Colors.white.withValues(alpha: 0.85);
+        level ? accent : Colors.white.withValues(alpha: 0.85);
     return SizedBox(
       width: radius * 2 + 24,
       height: radius * 2 + 24,
@@ -217,7 +219,7 @@ class LevelRing extends StatelessWidget {
             height: 16,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: level ? brass : Colors.white,
+              color: level ? accent : Colors.white,
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.35),

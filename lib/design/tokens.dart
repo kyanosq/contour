@@ -1,24 +1,32 @@
 import 'package:flutter/material.dart';
 
-/// Contour design tokens — the "digital atelier" language.
+/// Contour design tokens — the "midnight atelier" language.
 ///
-/// Motif: tailor's tools. Ink-navy wool, chalk-warm surfaces, brass hardware,
-/// and ruler ticks as the recurring decorative DNA.
+/// Motif: a tailor's studio after dark. Obsidian and graphite surfaces,
+/// lumen-teal instrument light as the single accent, and ruler ticks as the
+/// recurring decorative DNA. Both appearance variants are dark: Obsidian
+/// (deep, default) and Graphite (lifted charcoal).
 abstract final class Atelier {
-  static const ink = Color(0xFF171C30); // 藏蓝呢 — primary text / dark surface
-  static const inkSoft = Color(0xFF2A3149);
-  static const chalk = Color(0xFFFAF7F2); // 划粉暖白 — light page background
-  static const card = Color(0xFFFFFFFF);
-  static const brass = Color(0xFFA8874F); // 黄铜 — action / accent
-  static const brassBright = Color(0xFFC4A46B); // brass on dark
-  static const thread = Color(0xFF8B93A7); // secondary text
-  static const success = Color(0xFF3E7C5B);
-  static const danger = Color(0xFFB4443C);
+  // Text.
+  static const ink = Color(0xFFECF1F8); // primary text on dark
+  static const thread = Color(0xFF8C97AC); // secondary text
 
-  // Dark theme surfaces.
-  static const nightBg = Color(0xFF101321);
-  static const nightCard = Color(0xFF1A1F31);
-  static const nightThread = Color(0xFF9AA1B5);
+  // Accent — "lumen" teal, the instrument light.
+  static const accent = Color(0xFF35D0C4); // graphite variant
+  static const accentBright = Color(0xFF4FE3D6); // obsidian variant
+  static const onAccent = Color(0xFF04211D);
+
+  // Obsidian (dark mode) surfaces.
+  static const nightBg = Color(0xFF070A11);
+  static const nightCard = Color(0xFF121826);
+  static const nightThread = Color(0xFF939DB2);
+
+  // Graphite ("light" appearance — a lifted charcoal, still dark).
+  static const chalk = Color(0xFF151924); // page base
+  static const card = Color(0xFF1D2331);
+
+  static const success = Color(0xFF43CE8C);
+  static const danger = Color(0xFFF0655F);
 }
 
 abstract final class Sp {
@@ -72,14 +80,14 @@ abstract final class Numerals {
       );
 }
 
-/// Hairline color that adapts to brightness.
+/// Hairline color (both variants are dark → always a white haze).
 Color hairlineOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
         ? Colors.white.withValues(alpha: 0.10)
-        : Colors.black.withValues(alpha: 0.08);
+        : Colors.white.withValues(alpha: 0.12);
 
-/// Brass accent that adapts to brightness.
-Color brassOf(BuildContext context) =>
+/// Accent that adapts to the appearance variant.
+Color accentOf(BuildContext context) =>
     Theme.of(context).brightness == Brightness.dark
-        ? Atelier.brassBright
-        : Atelier.brass;
+        ? Atelier.accentBright
+        : Atelier.accent;

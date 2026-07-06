@@ -4,29 +4,30 @@ import 'package:flutter/services.dart';
 
 import 'tokens.dart';
 
+/// Both appearance variants are dark ("midnight atelier"):
+/// - Obsidian (`darkTheme`): the deep default.
+/// - Graphite (`lightTheme`): a lifted charcoal for bright surroundings.
 ThemeData _base(Brightness b) {
-  final isDark = b == Brightness.dark;
+  final isObsidian = b == Brightness.dark;
   final scheme = ColorScheme(
     brightness: b,
-    primary: isDark ? Atelier.brassBright : Atelier.brass,
-    onPrimary: isDark ? Atelier.nightBg : Colors.white,
-    secondary: Atelier.inkSoft,
-    onSecondary: Colors.white,
+    primary: isObsidian ? Atelier.accentBright : Atelier.accent,
+    onPrimary: Atelier.onAccent,
+    secondary: Atelier.thread,
+    onSecondary: Atelier.nightBg,
     error: Atelier.danger,
     onError: Colors.white,
-    surface: isDark ? Atelier.nightBg : Atelier.chalk,
-    onSurface: isDark ? Atelier.chalk : Atelier.ink,
-    surfaceContainerLow: isDark ? Atelier.nightCard : Atelier.card,
+    surface: isObsidian ? Atelier.nightBg : Atelier.chalk,
+    onSurface: Atelier.ink,
+    surfaceContainerLow: isObsidian ? Atelier.nightCard : Atelier.card,
     surfaceContainerHighest:
-        isDark ? const Color(0xFF232941) : const Color(0xFFF0EBE2),
-    onSurfaceVariant: isDark ? Atelier.nightThread : Atelier.thread,
-    outlineVariant: isDark
-        ? Colors.white.withValues(alpha: 0.10)
-        : Colors.black.withValues(alpha: 0.08),
+        isObsidian ? const Color(0xFF1B2233) : const Color(0xFF262D3D),
+    onSurfaceVariant: isObsidian ? Atelier.nightThread : Atelier.thread,
+    outlineVariant: Colors.white.withValues(alpha: isObsidian ? 0.10 : 0.12),
   );
 
   final textTheme = Typography.material2021(platform: TargetPlatform.iOS)
-      .black
+      .white
       .apply(bodyColor: scheme.onSurface, displayColor: scheme.onSurface);
 
   return ThemeData(
@@ -45,8 +46,8 @@ ThemeData _base(Brightness b) {
       elevation: 0,
       scrolledUnderElevation: 0,
       centerTitle: true,
-      systemOverlayStyle:
-          isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+      // Dark chrome in both variants → light status-bar icons always.
+      systemOverlayStyle: SystemUiOverlayStyle.light,
       titleTextStyle: TextStyle(
         color: scheme.onSurface,
         fontSize: 17,
@@ -61,8 +62,8 @@ ThemeData _base(Brightness b) {
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: isDark ? Atelier.nightCard : Atelier.ink,
-      contentTextStyle: const TextStyle(color: Atelier.chalk, fontSize: 14),
+      backgroundColor: isObsidian ? Atelier.nightCard : Atelier.card,
+      contentTextStyle: const TextStyle(color: Atelier.ink, fontSize: 14),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(Corners.control),
       ),

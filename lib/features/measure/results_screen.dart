@@ -132,14 +132,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       padding: const EdgeInsets.fromLTRB(
                           Sp.x6, Sp.x3, Sp.x6, Sp.x4),
                       decoration: BoxDecoration(
-                        color: scheme.surface.withValues(alpha: 0.28),
+                        color: scheme.surface.withValues(alpha: 0.30),
                         border: Border(
                           top: BorderSide(
-                            color: Colors.white.withValues(
-                                alpha: Theme.of(context).brightness ==
-                                        Brightness.dark
-                                    ? 0.10
-                                    : 0.55),
+                            color: Colors.white.withValues(alpha: 0.12),
                             width: 1,
                           ),
                         ),
@@ -163,7 +159,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                             ),
                             const SizedBox(height: Sp.x2),
                           ],
-                          BrassButton(
+                          AccentButton(
                             label: _saving ? l.saving : l.resultsSave,
                             icon: Icons.bookmark_added_outlined,
                             onPressed:
@@ -338,15 +334,12 @@ class _Stepper extends StatelessWidget {
             child: Icon(icon, size: 19, color: scheme.onSurface),
           ),
         );
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.07)
-            : Colors.white.withValues(alpha: 0.55),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(Corners.chip),
         border: Border.all(
-          color: Colors.white.withValues(alpha: isDark ? 0.12 : 0.7),
+          color: Colors.white.withValues(alpha: 0.14),
           width: 1,
         ),
       ),

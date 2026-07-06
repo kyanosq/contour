@@ -26,21 +26,21 @@ class SettingsScreen extends StatelessWidget {
           children: [
             if (session.isDemo) ...[
               GlassPanel(
-                tint: brassOf(context),
+                tint: accentOf(context),
                 radius: Corners.control,
                 padding: const EdgeInsets.symmetric(
                     horizontal: Sp.x4, vertical: Sp.x3),
                 child: Row(
                   children: [
                     Icon(Icons.science_outlined,
-                        size: 18, color: brassOf(context)),
+                        size: 18, color: accentOf(context)),
                     const SizedBox(width: Sp.x2),
                     Text(
                       l.settingsDemoBadge,
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: brassOf(context),
+                        color: accentOf(context),
                       ),
                     ),
                   ],
@@ -264,7 +264,6 @@ class _PickerRow<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: Sp.x3),
       child: Row(
@@ -275,12 +274,10 @@ class _PickerRow<T> extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
-              color: isDark
-                  ? Colors.black.withValues(alpha: 0.22)
-                  : Colors.white.withValues(alpha: 0.42),
+              color: Colors.black.withValues(alpha: 0.22),
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.6),
+                color: Colors.white.withValues(alpha: 0.12),
                 width: 1,
               ),
             ),

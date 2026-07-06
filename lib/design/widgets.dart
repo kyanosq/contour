@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'glass.dart';
 import 'tokens.dart';
 
-/// Primary action button — polished brass bar with a soft glow.
-class BrassButton extends StatelessWidget {
-  const BrassButton({
+/// Primary action button — polished accent bar with a soft glow.
+class AccentButton extends StatelessWidget {
+  const AccentButton({
     super.key,
     required this.label,
     this.onPressed,
@@ -24,12 +24,11 @@ class BrassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final enabled = onPressed != null;
     final base = destructive ? Atelier.danger : scheme.primary;
     final top = destructive
-        ? const Color(0xFFC85B52)
-        : (isDark ? const Color(0xFFD4B87E) : const Color(0xFFBD9C63));
+        ? const Color(0xFFFF7F76)
+        : const Color(0xFF6FF2E6); // lumen highlight
 
     final button = AnimatedOpacity(
       duration: Motion.standard,
@@ -43,14 +42,14 @@ class BrassButton extends StatelessWidget {
             colors: [top, base],
           ),
           border: Border.all(
-            color: Colors.white.withValues(alpha: isDark ? 0.22 : 0.45),
+            color: Colors.white.withValues(alpha: 0.30),
             width: 1,
           ),
           boxShadow: enabled
               ? [
                   BoxShadow(
-                    color: base.withValues(alpha: isDark ? 0.35 : 0.38),
-                    blurRadius: 22,
+                    color: base.withValues(alpha: 0.30),
+                    blurRadius: 24,
                     offset: const Offset(0, 8),
                   ),
                 ]
@@ -60,8 +59,9 @@ class BrassButton extends StatelessWidget {
           style: FilledButton.styleFrom(
             backgroundColor: Colors.transparent,
             disabledBackgroundColor: Colors.transparent,
-            foregroundColor: scheme.onPrimary,
-            disabledForegroundColor: scheme.onPrimary,
+            foregroundColor: destructive ? Colors.white : scheme.onPrimary,
+            disabledForegroundColor:
+                destructive ? Colors.white : scheme.onPrimary,
             shadowColor: Colors.transparent,
             minimumSize: const Size(64, 54),
             shape: RoundedRectangleBorder(
@@ -139,7 +139,7 @@ class GlassButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final fg = accent ? brassOf(context) : scheme.onSurface;
+    final fg = accent ? accentOf(context) : scheme.onSurface;
     return GlassPanel(
       radius: 25,
       padding: EdgeInsets.zero,
@@ -213,7 +213,7 @@ class SectionLabel extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Row(
       children: [
-        Container(width: 14, height: 2, color: brassOf(context)),
+        Container(width: 14, height: 2, color: accentOf(context)),
         const SizedBox(width: Sp.x2),
         Flexible(
           child: Text(

@@ -103,7 +103,7 @@ class _MeasuringScreenState extends State<MeasuringScreen>
                             painter: _MeasuringRingPainter(
                               t: _spin.value,
                               ink: scheme.onSurfaceVariant,
-                              brass: brassOf(context),
+                              accent: accentOf(context),
                             ),
                           ),
                         ),
@@ -148,7 +148,7 @@ class _MeasuringScreenState extends State<MeasuringScreen>
                         fontSize: 13, color: scheme.onSurfaceVariant),
                   ),
                   const SizedBox(height: Sp.x8),
-                  BrassButton(
+                  AccentButton(
                     label: l.measuringRetry,
                     icon: Icons.refresh_rounded,
                     onPressed: _measure,
@@ -168,17 +168,17 @@ class _MeasuringScreenState extends State<MeasuringScreen>
   }
 }
 
-/// A tailor's tape coiled into a ring: tick circle + sweeping brass arc.
+/// A tailor's tape coiled into a ring: tick circle + sweeping accent arc.
 class _MeasuringRingPainter extends CustomPainter {
   _MeasuringRingPainter({
     required this.t,
     required this.ink,
-    required this.brass,
+    required this.accent,
   });
 
   final double t;
   final Color ink;
-  final Color brass;
+  final Color accent;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -187,7 +187,7 @@ class _MeasuringRingPainter extends CustomPainter {
 
     // tick circle
     final tickPaint = Paint()
-      ..strokeWidth = 1.2
+      ..strokeWidth = 1.3
       ..strokeCap = StrokeCap.round;
     const n = 60;
     for (var i = 0; i < n; i++) {
@@ -195,36 +195,53 @@ class _MeasuringRingPainter extends CustomPainter {
       final major = i % 5 == 0;
       final inner = c + Offset.fromDirection(a, r - (major ? 14 : 8));
       final outer = c + Offset.fromDirection(a, r);
-      tickPaint.color = ink.withValues(alpha: major ? 0.5 : 0.25);
+      tickPaint.color = ink.withValues(alpha: major ? 0.75 : 0.38);
       canvas.drawLine(inner, outer, tickPaint);
     }
 
-    // sweeping arc
-    final sweep = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round
-      ..shader = SweepGradient(
-        startAngle: 0,
-        endAngle: 2 * pi,
-        transform: GradientRotation(2 * pi * t),
-        colors: [brass.withValues(alpha: 0), brass],
-        stops: const [0.55, 1],
-      ).createShader(Rect.fromCircle(center: c, radius: r));
+    // sweeping arc — glow pass beneath the crisp pass so it reads on
+    // deep obsidian.
+    final arcRect = Rect.fromCircle(center: c, radius: r - 22);
+    Shader sweepShader() => SweepGradient(
+          startAngle: 0,
+          endAngle: 2 * pi,
+          transform: GradientRotation(2 * pi * t),
+          colors: [accent.withValues(alpha: 0), accent],
+          stops: const [0.55, 1],
+        ).createShader(Rect.fromCircle(center: c, radius: r));
     canvas.drawArc(
-      Rect.fromCircle(center: c, radius: r - 22),
+      arcRect,
       2 * pi * t,
       pi * 1.25,
       false,
-      sweep,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 9
+        ..strokeCap = StrokeCap.round
+        ..shader = sweepShader()
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+    );
+    canvas.drawArc(
+      arcRect,
+      2 * pi * t,
+      pi * 1.25,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3.5
+        ..strokeCap = StrokeCap.round
+        ..shader = sweepShader(),
     );
 
-    // center numeral dot
+    // center numeral dot with a soft halo
     canvas.drawCircle(
       c,
-      3,
-      Paint()..color = brass,
+      7,
+      Paint()
+        ..color = accent.withValues(alpha: 0.35)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
     );
+    canvas.drawCircle(c, 3.2, Paint()..color = accent);
   }
 
   @override

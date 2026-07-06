@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'tokens.dart';
 
 /// A measuring-tape number picker: horizontal ruler that scrolls under a
-/// fixed brass needle. Fling + snap come from [ListWheelScrollView] rotated
+/// fixed accent needle. Fling + snap come from [ListWheelScrollView] rotated
 /// sideways; every tick passing the needle clicks the haptics.
 ///
 /// Values are `min + i * step`. All in display units — unit conversion is the
@@ -91,7 +91,7 @@ class _TapePickerState extends State<TapePicker> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final brass = brassOf(context);
+    final accent = accentOf(context);
 
     String fmt(double v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
     final up = (widget.value + widget.step).clamp(widget.min, widget.max);
@@ -163,11 +163,11 @@ class _TapePickerState extends State<TapePicker> {
                     width: 2,
                     height: widget.height * 0.52,
                     decoration: BoxDecoration(
-                      color: brass,
+                      color: accent,
                       borderRadius: BorderRadius.circular(1),
                       boxShadow: [
                         BoxShadow(
-                          color: brass.withValues(alpha: 0.4),
+                          color: accent.withValues(alpha: 0.4),
                           blurRadius: 6,
                         ),
                       ],

@@ -314,7 +314,7 @@ class _SubjectScreenState extends State<SubjectScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(Sp.x6, Sp.x2, Sp.x6, Sp.x4),
-                child: BrassButton(
+                child: AccentButton(
                   label: l.subjectContinue,
                   icon: Icons.arrow_forward_rounded,
                   onPressed: _continue,
@@ -421,20 +421,19 @@ class _Segmented<T> extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: value == entry.key
                       ? scheme.onSurface
-                      : Colors.white.withValues(alpha: isDark ? 0.06 : 0.38),
+                      : Colors.white.withValues(alpha: isDark ? 0.06 : 0.08),
                   borderRadius: BorderRadius.circular(Corners.control),
                   border: Border.all(
                     color: value == entry.key
                         ? Colors.transparent
                         : Colors.white
-                            .withValues(alpha: isDark ? 0.12 : 0.65),
+                            .withValues(alpha: isDark ? 0.12 : 0.14),
                     width: 1,
                   ),
                   boxShadow: value == entry.key
                       ? [
                           BoxShadow(
-                            color: scheme.onSurface
-                                .withValues(alpha: isDark ? 0.25 : 0.28),
+                            color: Colors.black.withValues(alpha: 0.35),
                             blurRadius: 14,
                             offset: const Offset(0, 5),
                           ),
@@ -508,16 +507,13 @@ class _UnitToggle extends StatelessWidget {
           ),
         );
 
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.black.withValues(alpha: 0.22)
-            : Colors.white.withValues(alpha: 0.42),
+        color: Colors.black.withValues(alpha: 0.22),
         borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: Colors.white.withValues(alpha: isDark ? 0.10 : 0.6),
+          color: Colors.white.withValues(alpha: 0.12),
           width: 1,
         ),
       ),

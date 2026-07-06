@@ -606,7 +606,7 @@ class _ShutterBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const brass = Color(0xFFC4A46B);
+    const accent = Atelier.accentBright;
     return Semantics(
       button: true,
       label: 'shutter',
@@ -619,7 +619,7 @@ class _ShutterBar extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: level ? brass : Colors.white.withValues(alpha: 0.5),
+              color: level ? accent : Colors.white.withValues(alpha: 0.5),
               width: 4,
             ),
           ),
@@ -672,7 +672,7 @@ class _ReviewBar extends StatelessWidget {
           const SizedBox(width: Sp.x4),
           Expanded(
             flex: 2,
-            child: BrassButton(
+            child: AccentButton(
               label: l.captureUse,
               icon: Icons.check_rounded,
               onPressed: onUse,
@@ -732,14 +732,14 @@ class _FallbackCard extends StatelessWidget {
             ),
             const SizedBox(height: Sp.x5),
             if (denied) ...[
-              BrassButton(
+              AccentButton(
                 label: l.captureOpenSettings,
                 icon: Icons.settings_outlined,
                 onPressed: openAppSettings,
               ),
               const SizedBox(height: Sp.x2),
             ],
-            BrassButton(
+            AccentButton(
               label: l.captureUseSample,
               icon: Icons.image_outlined,
               onPressed: onUseSample,

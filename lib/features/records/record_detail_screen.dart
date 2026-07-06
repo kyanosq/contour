@@ -151,14 +151,14 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: brassOf(context)
+                                color: accentOf(context)
                                     .withValues(alpha: 0.12),
                               ),
                               child: Icon(
                                 seed?.gender == '2'
                                     ? Icons.female_rounded
                                     : Icons.male_rounded,
-                                color: brassOf(context),
+                                color: accentOf(context),
                               ),
                             ),
                             const SizedBox(width: Sp.x4),
@@ -223,21 +223,30 @@ class _RecordDetailScreenState extends State<RecordDetailScreen> {
                         children: [
                           SectionLabel(l.recordShowQr.toUpperCase()),
                           const SizedBox(height: Sp.x4),
-                          SizedBox(
-                            width: 150,
-                            height: 150,
-                            child: QrImageView(
-                              data: seed!.qrCode!,
-                              version: QrVersions.auto,
-                              eyeStyle: QrEyeStyle(
-                                eyeShape: QrEyeShape.square,
-                                color: scheme.onSurface,
+                          // White plate keeps the QR scannable on dark glass.
+                          Container(
+                            padding: const EdgeInsets.all(Sp.x3),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius:
+                                  BorderRadius.circular(Corners.control),
+                            ),
+                            child: SizedBox(
+                              width: 138,
+                              height: 138,
+                              child: QrImageView(
+                                data: seed!.qrCode!,
+                                version: QrVersions.auto,
+                                eyeStyle: const QrEyeStyle(
+                                  eyeShape: QrEyeShape.square,
+                                  color: Color(0xFF0B1020),
+                                ),
+                                dataModuleStyle: const QrDataModuleStyle(
+                                  dataModuleShape: QrDataModuleShape.square,
+                                  color: Color(0xFF0B1020),
+                                ),
+                                backgroundColor: Colors.white,
                               ),
-                              dataModuleStyle: QrDataModuleStyle(
-                                dataModuleShape: QrDataModuleShape.square,
-                                color: scheme.onSurface,
-                              ),
-                              backgroundColor: Colors.transparent,
                             ),
                           ),
                           const SizedBox(height: Sp.x3),

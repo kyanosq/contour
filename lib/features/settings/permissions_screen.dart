@@ -97,7 +97,7 @@ class _PermissionsScreenState extends State<PermissionsScreen>
               ),
             ),
             const SizedBox(height: Sp.x5),
-            BrassButton(
+            AccentButton(
               label: l.permOpenSystem,
               icon: Icons.settings_outlined,
               onPressed: openAppSettings,
@@ -161,19 +161,12 @@ class _PermRow extends StatelessWidget {
               decoration: BoxDecoration(
                 color: isGranted
                     ? Atelier.success.withValues(alpha: 0.14)
-                    : Colors.white.withValues(
-                        alpha: Theme.of(context).brightness == Brightness.dark
-                            ? 0.08
-                            : 0.5),
+                    : Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(Corners.chip),
                 border: Border.all(
                   color: isGranted
                       ? Atelier.success.withValues(alpha: 0.3)
-                      : Colors.white.withValues(
-                          alpha:
-                              Theme.of(context).brightness == Brightness.dark
-                                  ? 0.12
-                                  : 0.65),
+                      : Colors.white.withValues(alpha: 0.13),
                   width: 1,
                 ),
               ),

@@ -61,7 +61,7 @@ class BriefingScreen extends StatelessWidget {
                     child: Row(
                       children: [
                         Icon(Icons.auto_awesome_rounded,
-                            size: 20, color: brassOf(context)),
+                            size: 20, color: accentOf(context)),
                         const SizedBox(width: Sp.x3),
                         Expanded(
                           child: Text(
@@ -81,7 +81,7 @@ class BriefingScreen extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(Sp.x6, Sp.x2, Sp.x6, Sp.x4),
-              child: BrassButton(
+              child: AccentButton(
                 label: l.briefingStart,
                 icon: Icons.photo_camera_outlined,
                 onPressed: () => context.push('/capture'),
@@ -117,7 +117,7 @@ class _TipRow extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 fontFeatures: Numerals.features,
-                color: brassOf(context),
+                color: accentOf(context),
               ),
             ),
           ),
