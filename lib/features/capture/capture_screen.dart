@@ -61,6 +61,9 @@ class _CaptureScreenState extends State<CaptureScreen>
   Uint8List? _lastShot;
   bool _spokePromptForView = false;
 
+  /// Optional belt-line mark set during front-photo review (normalized 0..1).
+  double? _beltY;
+
   MeasureFlow get _flow => context.read<MeasureFlow>();
 
   @override
@@ -183,9 +186,20 @@ class _CaptureScreenState extends State<CaptureScreen>
     }
   }
 
+  bool get _isFrontLens =>
+      _cameras.isNotEmpty &&
+      _cameras[_cameraIndex].lensDirection == CameraLensDirection.front;
+
+  /// Explicit back ↔ front toggle (self-measuring with the phone propped
+  /// up is a first-class path, not an index rotation).
   Future<void> _switchCamera() async {
     if (_cameras.length < 2) return;
-    _cameraIndex = (_cameraIndex + 1) % _cameras.length;
+    final want = _isFrontLens
+        ? CameraLensDirection.back
+        : CameraLensDirection.front;
+    final idx = _cameras.indexWhere((c) => c.lensDirection == want);
+    _cameraIndex = idx >= 0 ? idx : (_cameraIndex + 1) % _cameras.length;
+    HapticFeedback.selectionClick();
     await _openCamera();
   }
 
@@ -254,12 +268,19 @@ class _CaptureScreenState extends State<CaptureScreen>
 
   void _retake() {
     _lastShot = null;
+    _beltY = null;
     _machine.retake();
     _speakViewPrompt();
   }
 
   void _confirm() {
     final flow = _flow;
+    // Persist the optional user-marked belt line into the front view's
+    // capture metadata (normalized image-space Y).
+    if (_machine.view == CaptureView.front && _beltY != null) {
+      flow.annotateView('front', {'belt_y': (_beltY! * 1000).round() / 1000});
+    }
+    _beltY = null;
     final done = _machine.confirm();
     if (done) {
       flow.deviceInfo = buildDeviceInfo(
@@ -344,9 +365,15 @@ class _CaptureScreenState extends State<CaptureScreen>
             ),
           ),
 
-          // ------- layer 4: review photo
-          if (inReview && _lastShot != null)
+          // ------- layer 4: review photo (+ optional belt mark on front)
+          if (inReview && _lastShot != null) ...[
             Image.memory(_lastShot!, fit: BoxFit.cover, gaplessPlayback: true),
+            if (front)
+              _BeltMarker(
+                y: _beltY,
+                onChanged: (v) => setState(() => _beltY = v),
+              ),
+          ],
 
           // ------- layer 5: chrome
           SafeArea(
@@ -362,6 +389,7 @@ class _CaptureScreenState extends State<CaptureScreen>
                       ? _switchCamera
                       : null,
                   switchTooltip: l.captureSwitchCamera,
+                  frontLens: _isFrontLens,
                 ),
                 const Spacer(),
 
@@ -376,12 +404,18 @@ class _CaptureScreenState extends State<CaptureScreen>
                     LevelRing(
                       dx: _reading.dx,
                       dy: _reading.dy,
+                      rollDeg: _reading.rollDeg,
                       level: _machine.isLevel,
                     ),
                   const SizedBox(height: Sp.x4),
                   _HintStrip(
                     text: switch (_machine.phase) {
-                      CapturePhase.unlevel => l.captureLevelHint,
+                      // Name the dominant axis: roll (turn flat) vs pitch
+                      // (stand the phone upright).
+                      CapturePhase.unlevel =>
+                        _reading.dx.abs() >= _reading.dy.abs()
+                            ? l.captureRollHint
+                            : l.capturePitchHint,
                       CapturePhase.holding => l.captureHoldSteady,
                       _ => '',
                     },
@@ -471,6 +505,7 @@ class _TopBar extends StatelessWidget {
     required this.onClose,
     this.onSwitch,
     required this.switchTooltip,
+    this.frontLens = false,
   });
 
   final String label;
@@ -478,8 +513,12 @@ class _TopBar extends StatelessWidget {
   final VoidCallback? onSwitch;
   final String switchTooltip;
 
+  /// Selfie lens active — the switch icon glows chalk.
+  final bool frontLens;
+
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: Sp.x2),
       child: Row(
@@ -495,16 +534,40 @@ class _TopBar extends StatelessWidget {
           _cameraGlass(
             radius: 20,
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: 8),
-              child: Text(
-                label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1,
-                ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: Sp.x4,
+                vertical: 8,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1,
+                    ),
+                  ),
+                  if (frontLens) ...[
+                    const SizedBox(width: 6),
+                    Icon(
+                      Icons.person_outline,
+                      size: 14,
+                      color: Atelier.accentBright,
+                    ),
+                    const SizedBox(width: 2),
+                    Text(
+                      l.captureSelfieBadge,
+                      style: const TextStyle(
+                        color: Atelier.accentBright,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
@@ -517,7 +580,7 @@ class _TopBar extends StatelessWidget {
                 Icons.cameraswitch_outlined,
                 color: onSwitch == null
                     ? Colors.white.withValues(alpha: 0.25)
-                    : Colors.white,
+                    : (frontLens ? Atelier.accentBright : Colors.white),
               ),
               style: IconButton.styleFrom(minimumSize: const Size(44, 44)),
             ),
@@ -535,17 +598,34 @@ class _CountdownBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Number pops in while a chalk arc drains over the second.
     return TweenAnimationBuilder<double>(
       key: ValueKey(n),
-      tween: Tween(begin: 1.35, end: 1.0),
-      duration: const Duration(milliseconds: 320),
-      curve: Curves.easeOutCubic,
-      builder: (context, scale, child) =>
-          Transform.scale(scale: scale, child: child),
+      tween: Tween(begin: 0, end: 1),
+      duration: const Duration(milliseconds: 1000),
+      builder: (context, t, child) {
+        final scale =
+            1.0 +
+            0.35 * (1 - Curves.easeOutCubic.transform((t * 3).clamp(0.0, 1.0)));
+        return SizedBox(
+          width: 148,
+          height: 148,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                size: const Size.square(148),
+                painter: _CountdownArcPainter(remaining: 1 - t),
+              ),
+              Transform.scale(scale: scale, child: child),
+            ],
+          ),
+        );
+      },
       child: Text(
         '$n',
         style: TextStyle(
-          fontSize: 96,
+          fontSize: 88,
           fontWeight: FontWeight.w200,
           color: Colors.white,
           fontFeatures: Numerals.features,
@@ -556,6 +636,41 @@ class _CountdownBadge extends StatelessWidget {
       ),
     );
   }
+}
+
+class _CountdownArcPainter extends CustomPainter {
+  _CountdownArcPainter({required this.remaining});
+
+  /// 1 → full circle, 0 → gone.
+  final double remaining;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.width / 2 - 4;
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..color = Colors.white.withValues(alpha: 0.18),
+    );
+    canvas.drawArc(
+      Rect.fromCircle(center: c, radius: r),
+      -1.5707963, // 12 o'clock
+      6.2831853 * remaining,
+      false,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round
+        ..color = Atelier.accentBright,
+    );
+  }
+
+  @override
+  bool shouldRepaint(_CountdownArcPainter old) => old.remaining != remaining;
 }
 
 class _HintStrip extends StatelessWidget {
@@ -582,8 +697,7 @@ class _HintStrip extends StatelessWidget {
                     widthFactor: 1,
                     child: Text(
                       text,
-                      style:
-                          const TextStyle(color: Colors.white, fontSize: 13),
+                      style: const TextStyle(color: Colors.white, fontSize: 13),
                     ),
                   ),
                 ),
@@ -682,6 +796,141 @@ class _ReviewBar extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Optional one-point belt mark over the front review photo: a draggable
+/// chalk line. One point = height only (assumes a level belt plane); the
+/// legacy 3-point annotation additionally captured belt tilt — see the
+/// eval report for the accuracy trade-off.
+class _BeltMarker extends StatefulWidget {
+  const _BeltMarker({required this.y, required this.onChanged});
+
+  /// Normalized 0..1 (null until the user drags it).
+  final double? y;
+  final ValueChanged<double?> onChanged;
+
+  @override
+  State<_BeltMarker> createState() => _BeltMarkerState();
+}
+
+class _BeltMarkerState extends State<_BeltMarker> {
+  static const _restY = 0.58; // resting hint position (near natural waist)
+
+  double get _y => widget.y ?? _restY;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final marked = widget.y != null;
+    const chalk = Atelier.accentBright;
+    return LayoutBuilder(
+      builder: (context, box) {
+        final top = _y * box.maxHeight;
+        return Stack(
+          children: [
+            Positioned(
+              top: top - 24,
+              left: 0,
+              right: 0,
+              height: 48,
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onVerticalDragUpdate: (d) {
+                  final next =
+                      ((_y * box.maxHeight + d.delta.dy) / box.maxHeight).clamp(
+                        0.15,
+                        0.9,
+                      );
+                  widget.onChanged(next);
+                },
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CustomPaint(
+                        size: Size(box.maxWidth, 20),
+                        painter: _BeltLinePainter(
+                          color: marked
+                              ? chalk
+                              : Colors.white.withValues(alpha: 0.55),
+                          solid: marked,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      _cameraGlass(
+                        radius: 12,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Sp.x3,
+                            vertical: 4,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.drag_handle_rounded,
+                                size: 13,
+                                color: marked ? chalk : Colors.white70,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                marked
+                                    ? l.captureBeltMarked
+                                    : l.captureBeltHint,
+                                style: TextStyle(
+                                  fontSize: 11.5,
+                                  color: marked ? chalk : Colors.white70,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _BeltLinePainter extends CustomPainter {
+  _BeltLinePainter({required this.color, required this.solid});
+
+  final Color color;
+  final bool solid;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final y = size.height / 2;
+    final paint = Paint()
+      ..strokeWidth = solid ? 2.2 : 1.6
+      ..strokeCap = StrokeCap.round
+      ..color = color;
+    if (solid) {
+      paint.maskFilter = const MaskFilter.blur(BlurStyle.solid, 2);
+      canvas.drawLine(Offset(24, y), Offset(size.width - 24, y), paint);
+    } else {
+      var x = 24.0;
+      while (x < size.width - 24) {
+        final end = (x + 10).clamp(0.0, size.width - 24);
+        canvas.drawLine(Offset(x, y), Offset(end, y), paint);
+        x += 17;
+      }
+    }
+    // end dots — chalk pin heads
+    canvas.drawCircle(Offset(24, y), 3, Paint()..color = color);
+    canvas.drawCircle(Offset(size.width - 24, y), 3, Paint()..color = color);
+  }
+
+  @override
+  bool shouldRepaint(_BeltLinePainter old) =>
+      old.color != color || old.solid != solid;
 }
 
 class _FallbackCard extends StatelessWidget {

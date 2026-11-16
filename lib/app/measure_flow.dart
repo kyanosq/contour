@@ -38,6 +38,12 @@ class MeasureFlow extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Merge extra keys (e.g. the user-marked belt line) into an already
+  /// captured view's metadata.
+  void annotateView(String view, Map<String, dynamic> extra) {
+    captureMetadata.views[view]?.addAll(extra);
+  }
+
   void setResult(MeasureResult r) {
     result = r;
     notifyListeners();

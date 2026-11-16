@@ -194,6 +194,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get captureLevelHint => '微调手机，让气泡进入圆环';
 
   @override
+  String get captureRollHint => '左右摆正手机，让划粉线转平';
+
+  @override
+  String get capturePitchHint => '手机立直，别前后倾';
+
+  @override
+  String get captureSelfieBadge => '自拍';
+
+  @override
+  String get captureBeltHint => '可拖动标记腰带位置';
+
+  @override
+  String get captureBeltMarked => '腰带位置已标记';
+
+  @override
   String get captureHoldSteady => '保持稳定…';
 
   @override

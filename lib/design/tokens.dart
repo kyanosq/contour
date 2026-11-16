@@ -1,31 +1,32 @@
 import 'package:flutter/material.dart';
 
-/// Contour design tokens — the "midnight atelier" language.
+/// Contour design tokens — the "wool & chalk" language.
 ///
-/// Motif: a tailor's studio after dark. Obsidian and graphite surfaces,
-/// lumen-teal instrument light as the single accent, and ruler ticks as the
-/// recurring decorative DNA. Both appearance variants are dark: Obsidian
+/// Motif: a bespoke tailor's studio after dark. Midnight wool surfaces
+/// (navy-charcoal), and every measuring element — tape needles, bands,
+/// level ring, dial sweep — is a chalk mark: warm ivory, the tailor's
+/// chalk on dark cloth. Both appearance variants are dark: Obsidian
 /// (deep, default) and Graphite (lifted charcoal).
 abstract final class Atelier {
   // Text.
   static const ink = Color(0xFFECF1F8); // primary text on dark
   static const thread = Color(0xFF8C97AC); // secondary text
 
-  // Accent — "lumen" teal, the instrument light.
-  static const accent = Color(0xFF35D0C4); // graphite variant
-  static const accentBright = Color(0xFF4FE3D6); // obsidian variant
-  static const onAccent = Color(0xFF04211D);
+  // Accent — tailor's chalk, warm ivory.
+  static const accent = Color(0xFFE7DFCB); // graphite variant
+  static const accentBright = Color(0xFFF2EBDA); // obsidian variant
+  static const onAccent = Color(0xFF181C2A); // deep ink on chalk
 
-  // Obsidian (dark mode) surfaces.
-  static const nightBg = Color(0xFF070A11);
-  static const nightCard = Color(0xFF121826);
+  // Obsidian (dark mode) surfaces — midnight wool.
+  static const nightBg = Color(0xFF070A12);
+  static const nightCard = Color(0xFF111726);
   static const nightThread = Color(0xFF939DB2);
 
   // Graphite ("light" appearance — a lifted charcoal, still dark).
-  static const chalk = Color(0xFF151924); // page base
-  static const card = Color(0xFF1D2331);
+  static const chalkBg = Color(0xFF161A26); // page base
+  static const card = Color(0xFF1E2432);
 
-  static const success = Color(0xFF43CE8C);
+  static const success = Color(0xFF4FC98F);
   static const danger = Color(0xFFF0655F);
 }
 

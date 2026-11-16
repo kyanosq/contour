@@ -33,7 +33,7 @@ class _AmbientPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final rect = Offset.zero & size;
 
-    // Base wash — Obsidian (deep) vs Graphite (lifted charcoal).
+    // Base wash — midnight wool: Obsidian (deep) vs Graphite (lifted).
     canvas.drawRect(
       rect,
       Paint()
@@ -41,8 +41,8 @@ class _AmbientPainter extends CustomPainter {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: isDark
-              ? const [Color(0xFF05070D), Color(0xFF0A0F1C), Color(0xFF060911)]
-              : const [Color(0xFF181D29), Color(0xFF1B212F), Color(0xFF141822)],
+              ? const [Color(0xFF060810), Color(0xFF0B101E), Color(0xFF070912)]
+              : const [Color(0xFF191D2A), Color(0xFF1C2231), Color(0xFF151923)],
         ).createShader(rect),
     );
 
@@ -59,25 +59,25 @@ class _AmbientPainter extends CustomPainter {
 
     final w = size.width, h = size.height;
     if (isDark) {
-      // Lumen aurora + indigo depths.
+      // One warm work lamp + deep indigo night.
       blob(Offset(w * 0.85, h * 0.04), w * 0.72,
-          const Color(0xFF35D0C4).withValues(alpha: 0.11));
+          const Color(0xFFE8DCBB).withValues(alpha: 0.10));
       blob(Offset(w * 0.04, h * 0.32), w * 0.7,
           const Color(0xFF31418F).withValues(alpha: 0.20));
       blob(Offset(w * 0.78, h * 0.86), w * 0.85,
-          const Color(0xFF14425C).withValues(alpha: 0.22));
+          const Color(0xFF20315E).withValues(alpha: 0.22));
       blob(Offset(w * 0.16, h * 0.99), w * 0.5,
-          const Color(0xFF35D0C4).withValues(alpha: 0.05));
+          const Color(0xFFE8DCBB).withValues(alpha: 0.045));
     } else {
-      // Same night, one lamp brighter.
+      // Same night, the lamp turned a notch brighter.
       blob(Offset(w * 0.85, h * 0.04), w * 0.75,
-          const Color(0xFF3ADACE).withValues(alpha: 0.13));
+          const Color(0xFFEDE2C3).withValues(alpha: 0.12));
       blob(Offset(w * 0.04, h * 0.30), w * 0.72,
           const Color(0xFF44549E).withValues(alpha: 0.24));
       blob(Offset(w * 0.82, h * 0.84), w * 0.9,
-          const Color(0xFF1B506D).withValues(alpha: 0.26));
+          const Color(0xFF2A3C6E).withValues(alpha: 0.26));
       blob(Offset(w * 0.14, h * 0.98), w * 0.55,
-          const Color(0xFF3ADACE).withValues(alpha: 0.06));
+          const Color(0xFFEDE2C3).withValues(alpha: 0.055));
     }
 
     // Diagonal light shaft (very faint) — echoes the studio photos. Soft
@@ -106,6 +106,41 @@ class _AmbientPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_AmbientPainter old) => old.isDark != isDark;
+}
+
+/// ------------------------------------------------------------------- press
+///
+/// The house press feedback: every tappable surface settles 3% under the
+/// finger. One curve, one duration — a single tactile language app-wide.
+class PressTract extends StatefulWidget {
+  const PressTract({super.key, required this.child, this.enabled = true});
+
+  final Widget child;
+  final bool enabled;
+
+  @override
+  State<PressTract> createState() => _PressTractState();
+}
+
+class _PressTractState extends State<PressTract> {
+  bool _down = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.enabled) return widget.child;
+    return Listener(
+      behavior: HitTestBehavior.deferToChild,
+      onPointerDown: (_) => setState(() => _down = true),
+      onPointerUp: (_) => setState(() => _down = false),
+      onPointerCancel: (_) => setState(() => _down = false),
+      child: AnimatedScale(
+        scale: _down ? 0.97 : 1.0,
+        duration: const Duration(milliseconds: 120),
+        curve: Curves.easeOut,
+        child: widget.child,
+      ),
+    );
+  }
 }
 
 /// -------------------------------------------------------------------- panel
@@ -215,7 +250,7 @@ class GlassPanel extends StatelessWidget {
 
     core = ClipRRect(borderRadius: r, child: core);
 
-    return DecoratedBox(
+    core = DecoratedBox(
       decoration: BoxDecoration(
         borderRadius: r,
         boxShadow: [
@@ -228,6 +263,8 @@ class GlassPanel extends StatelessWidget {
       ),
       child: core,
     );
+
+    return onTap == null ? core : PressTract(child: core);
   }
 }
 

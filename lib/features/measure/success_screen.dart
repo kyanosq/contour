@@ -42,46 +42,80 @@ class SuccessScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              // accent check
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0, end: 1),
-                duration: Motion.emphasized,
-                curve: Motion.spring,
-                builder: (context, v, child) =>
-                    Transform.scale(scale: v, child: child),
-                child: Container(
-                  width: 84,
-                  height: 84,
+              // chalk seal: check pops in, a ripple ring spreads once
+              SizedBox(
+                height: 110,
+                child: Stack(
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: accentOf(context).withValues(alpha: 0.14),
-                    border: Border.all(color: accentOf(context), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: accentOf(context).withValues(alpha: 0.38),
-                        blurRadius: 44,
-                        spreadRadius: 2,
+                  children: [
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 900),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, v, _) => Opacity(
+                        opacity: (1 - v).clamp(0.0, 1.0) * 0.7,
+                        child: Container(
+                          width: 84 + 72 * v,
+                          height: 84 + 72 * v,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: accentOf(context),
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
                       ),
-                    ],
-                  ),
-                  child: Icon(Icons.check_rounded,
-                      size: 42, color: accentOf(context)),
+                    ),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0, end: 1),
+                      duration: Motion.emphasized,
+                      curve: Motion.spring,
+                      builder: (context, v, child) =>
+                          Transform.scale(scale: v, child: child),
+                      child: Container(
+                        width: 84,
+                        height: 84,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: accentOf(context).withValues(alpha: 0.14),
+                          border: Border.all(
+                            color: accentOf(context),
+                            width: 1.5,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: accentOf(context).withValues(alpha: 0.30),
+                              blurRadius: 44,
+                              spreadRadius: 2,
+                            ),
+                          ],
+                        ),
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 42,
+                          color: accentOf(context),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(height: Sp.x6),
               Text(
                 l.successTitle,
                 textAlign: TextAlign.center,
-                style:
-                    const TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
               const SizedBox(height: Sp.x2),
               Text(
                 l.successSub,
                 textAlign: TextAlign.center,
-                style:
-                    TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
+                style: TextStyle(fontSize: 14, color: scheme.onSurfaceVariant),
               ),
               const SizedBox(height: Sp.x8),
               if (qr != null && qr.isNotEmpty)
@@ -96,8 +130,9 @@ class SuccessScreen extends StatelessWidget {
                           padding: const EdgeInsets.all(Sp.x3),
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius:
-                                BorderRadius.circular(Corners.control),
+                            borderRadius: BorderRadius.circular(
+                              Corners.control,
+                            ),
                           ),
                           child: SizedBox(
                             width: 156,

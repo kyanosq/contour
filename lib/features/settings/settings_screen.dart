@@ -293,7 +293,7 @@ class _PickerRow<T> extends StatelessWidget {
                           horizontal: Sp.x3, vertical: 6),
                       decoration: BoxDecoration(
                         color: value == e.key
-                            ? scheme.onSurface
+                            ? accentOf(context)
                             : Colors.transparent,
                         borderRadius: BorderRadius.circular(15),
                       ),
@@ -303,7 +303,7 @@ class _PickerRow<T> extends StatelessWidget {
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: value == e.key
-                              ? scheme.surface
+                              ? Atelier.onAccent
                               : scheme.onSurfaceVariant,
                         ),
                       ),

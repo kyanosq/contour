@@ -420,7 +420,7 @@ class _Segmented<T> extends StatelessWidget {
                 height: 54,
                 decoration: BoxDecoration(
                   color: value == entry.key
-                      ? scheme.onSurface
+                      ? accentOf(context)
                       : Colors.white.withValues(alpha: isDark ? 0.06 : 0.08),
                   borderRadius: BorderRadius.circular(Corners.control),
                   border: Border.all(
@@ -447,7 +447,7 @@ class _Segmented<T> extends StatelessWidget {
                       entry.value.$1,
                       size: 20,
                       color: value == entry.key
-                          ? scheme.surface
+                          ? Atelier.onAccent
                           : scheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: Sp.x2),
@@ -457,7 +457,7 @@ class _Segmented<T> extends StatelessWidget {
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
                         color: value == entry.key
-                            ? scheme.surface
+                            ? Atelier.onAccent
                             : scheme.onSurface,
                       ),
                     ),
@@ -493,7 +493,7 @@ class _UnitToggle extends StatelessWidget {
             duration: Motion.standard,
             padding: const EdgeInsets.symmetric(horizontal: Sp.x3, vertical: 6),
             decoration: BoxDecoration(
-              color: selected ? scheme.onSurface : Colors.transparent,
+              color: selected ? accentOf(context) : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -501,7 +501,8 @@ class _UnitToggle extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: selected ? scheme.surface : scheme.onSurfaceVariant,
+                color:
+                    selected ? Atelier.onAccent : scheme.onSurfaceVariant,
               ),
             ),
           ),

@@ -199,6 +199,22 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tilt the phone until the bubble sits in the ring';
 
   @override
+  String get captureRollHint => 'Level the phone — turn the chalk line flat';
+
+  @override
+  String get capturePitchHint =>
+      'Stand the phone upright — no forward/back lean';
+
+  @override
+  String get captureSelfieBadge => 'Selfie';
+
+  @override
+  String get captureBeltHint => 'Drag to mark your belt line';
+
+  @override
+  String get captureBeltMarked => 'Belt line marked';
+
+  @override
   String get captureHoldSteady => 'Hold steady…';
 
   @override

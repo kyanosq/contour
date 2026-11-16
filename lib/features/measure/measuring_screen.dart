@@ -22,9 +22,10 @@ class MeasuringScreen extends StatefulWidget {
 
 class _MeasuringScreenState extends State<MeasuringScreen>
     with SingleTickerProviderStateMixin {
-  late final AnimationController _spin =
-      AnimationController(vsync: this, duration: const Duration(seconds: 3))
-        ..repeat();
+  late final AnimationController _spin = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 3),
+  )..repeat();
 
   Timer? _phaseTimer;
   int _phase = 0;
@@ -115,7 +116,9 @@ class _MeasuringScreenState extends State<MeasuringScreen>
                     l.measuringTitle,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 22, fontWeight: FontWeight.w600),
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: Sp.x3),
                   AnimatedSwitcher(
@@ -131,21 +134,28 @@ class _MeasuringScreenState extends State<MeasuringScreen>
                     ),
                   ),
                 ] else ...[
-                  Icon(Icons.cloud_off_rounded,
-                      size: 44, color: scheme.onSurfaceVariant),
+                  Icon(
+                    Icons.cloud_off_rounded,
+                    size: 44,
+                    color: scheme.onSurfaceVariant,
+                  ),
                   const SizedBox(height: Sp.x5),
                   Text(
                     l.measuringFailed,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.w600),
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(height: Sp.x2),
                   Text(
                     _error!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                        fontSize: 13, color: scheme.onSurfaceVariant),
+                      fontSize: 13,
+                      color: scheme.onSurfaceVariant,
+                    ),
                   ),
                   const SizedBox(height: Sp.x8),
                   AccentButton(
@@ -168,7 +178,9 @@ class _MeasuringScreenState extends State<MeasuringScreen>
   }
 }
 
-/// A tailor's tape coiled into a ring: tick circle + sweeping accent arc.
+/// The measuring instrument: a magnified spirit-level / coiled tape.
+/// Static graduated dial + counter-rotating chalk tape + comet sweep with
+/// glow + breathing chalk core. Same visual language as the capture ring.
 class _MeasuringRingPainter extends CustomPainter {
   _MeasuringRingPainter({
     required this.t,
@@ -185,7 +197,7 @@ class _MeasuringRingPainter extends CustomPainter {
     final c = size.center(Offset.zero);
     final r = min(size.width, size.height) / 2 - 8;
 
-    // tick circle
+    // Outer graduated dial (static).
     final tickPaint = Paint()
       ..strokeWidth = 1.3
       ..strokeCap = StrokeCap.round;
@@ -195,19 +207,34 @@ class _MeasuringRingPainter extends CustomPainter {
       final major = i % 5 == 0;
       final inner = c + Offset.fromDirection(a, r - (major ? 14 : 8));
       final outer = c + Offset.fromDirection(a, r);
-      tickPaint.color = ink.withValues(alpha: major ? 0.75 : 0.38);
+      tickPaint.color = ink.withValues(alpha: major ? 0.8 : 0.4);
       canvas.drawLine(inner, outer, tickPaint);
     }
 
-    // sweeping arc — glow pass beneath the crisp pass so it reads on
-    // deep obsidian.
-    final arcRect = Rect.fromCircle(center: c, radius: r - 22);
+    // Counter-rotating chalk ticks: radial marks drifting the other way —
+    // the tape being drawn around the body.
+    final tape = Paint()
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round
+      ..color = accent.withValues(alpha: 0.55);
+    const dashes = 18;
+    for (var i = 0; i < dashes; i++) {
+      final a = 2 * pi * i / dashes - 2 * pi * t * 0.5;
+      canvas.drawLine(
+        c + Offset.fromDirection(a, r - 36),
+        c + Offset.fromDirection(a, r - 27),
+        tape,
+      );
+    }
+
+    // Comet sweep — glow pass beneath the crisp pass.
+    final arcRect = Rect.fromCircle(center: c, radius: r - 21);
     Shader sweepShader() => SweepGradient(
           startAngle: 0,
           endAngle: 2 * pi,
           transform: GradientRotation(2 * pi * t),
           colors: [accent.withValues(alpha: 0), accent],
-          stops: const [0.55, 1],
+          stops: const [0.62, 1],
         ).createShader(Rect.fromCircle(center: c, radius: r));
     canvas.drawArc(
       arcRect,
@@ -216,10 +243,10 @@ class _MeasuringRingPainter extends CustomPainter {
       false,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 9
+        ..strokeWidth = 12
         ..strokeCap = StrokeCap.round
         ..shader = sweepShader()
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
     canvas.drawArc(
       arcRect,
@@ -228,20 +255,21 @@ class _MeasuringRingPainter extends CustomPainter {
       false,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 3.5
+        ..strokeWidth = 4
         ..strokeCap = StrokeCap.round
         ..shader = sweepShader(),
     );
 
-    // center numeral dot with a soft halo
+    // Breathing chalk core (2 pulses per revolution).
+    final pulse = 0.5 + 0.5 * sin(4 * pi * t);
     canvas.drawCircle(
       c,
-      7,
+      9 + 4 * pulse,
       Paint()
-        ..color = accent.withValues(alpha: 0.35)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6),
+        ..color = accent.withValues(alpha: 0.25 + 0.22 * pulse)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8),
     );
-    canvas.drawCircle(c, 3.2, Paint()..color = accent);
+    canvas.drawCircle(c, 4, Paint()..color = accent);
   }
 
   @override

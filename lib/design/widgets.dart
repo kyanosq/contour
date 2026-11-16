@@ -28,73 +28,75 @@ class AccentButton extends StatelessWidget {
     final base = destructive ? Atelier.danger : scheme.primary;
     final top = destructive
         ? const Color(0xFFFF7F76)
-        : const Color(0xFF6FF2E6); // lumen highlight
+        : const Color(0xFFFFF8E8); // chalk highlight
 
     final button = AnimatedOpacity(
       duration: Motion.standard,
       opacity: enabled ? 1 : 0.45,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(27),
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [top, base],
-          ),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.30),
-            width: 1,
-          ),
-          boxShadow: enabled
-              ? [
-                  BoxShadow(
-                    color: base.withValues(alpha: 0.30),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ]
-              : null,
-        ),
-        child: FilledButton(
-          style: FilledButton.styleFrom(
-            backgroundColor: Colors.transparent,
-            disabledBackgroundColor: Colors.transparent,
-            foregroundColor: destructive ? Colors.white : scheme.onPrimary,
-            disabledForegroundColor:
-                destructive ? Colors.white : scheme.onPrimary,
-            shadowColor: Colors.transparent,
-            minimumSize: const Size(64, 54),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(27),
+      child: PressTract(
+        enabled: enabled,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(27),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [top, base],
             ),
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 0.4,
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.30),
+              width: 1,
             ),
+            boxShadow: enabled
+                ? [
+                    BoxShadow(
+                      color: base.withValues(alpha: 0.22),
+                      blurRadius: 26,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
+                : null,
           ),
-          onPressed: !enabled
-              ? null
-              : () {
-                  HapticFeedback.lightImpact();
-                  onPressed!();
-                },
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (icon != null) ...[
-                Icon(icon, size: 20),
-                const SizedBox(width: Sp.x2),
+          child: FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              disabledBackgroundColor: Colors.transparent,
+              foregroundColor: destructive ? Colors.white : scheme.onPrimary,
+              disabledForegroundColor: destructive
+                  ? Colors.white
+                  : scheme.onPrimary,
+              shadowColor: Colors.transparent,
+              minimumSize: const Size(64, 54),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(27),
+              ),
+              textStyle: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.4,
+              ),
+            ),
+            onPressed: !enabled
+                ? null
+                : () {
+                    HapticFeedback.lightImpact();
+                    onPressed!();
+                  },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (icon != null) ...[
+                  Icon(icon, size: 20),
+                  const SizedBox(width: Sp.x2),
+                ],
+                Text(label),
               ],
-              Text(label),
-            ],
+            ),
           ),
         ),
       ),
     );
-    return expanded
-        ? SizedBox(width: double.infinity, child: button)
-        : button;
+    return expanded ? SizedBox(width: double.infinity, child: button) : button;
   }
 }
 
@@ -288,8 +290,7 @@ void showToast(BuildContext context, String message, {bool error = false}) {
       content: GlassPanel(
         frosted: true,
         radius: 18,
-        padding:
-            const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
+        padding: const EdgeInsets.symmetric(horizontal: Sp.x4, vertical: Sp.x3),
         child: Row(
           children: [
             Icon(

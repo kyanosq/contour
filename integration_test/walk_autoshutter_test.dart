@@ -64,10 +64,11 @@ void main() {
     await tester.tap(find.text('开始拍摄'));
     await tester.pumpAndSettle(const Duration(milliseconds: 600));
 
-    // tilted phase: hint visible, no countdown yet
+    // tilted phase: axis-specific hint visible, no countdown yet
+    // (scripted gravity tilts roll-dominant → the roll hint shows)
     await _until(tester, find.text('第 1 张 · 正面'));
     await _shot(binding, tester, 'a01_tilted');
-    expect(find.text('微调手机，让气泡进入圆环'), findsOneWidget);
+    expect(find.text('左右摆正手机，让划粉线转平'), findsOneWidget);
 
     // wait for level → holding → countdown → auto shutter → review
     // (2.5 s tilt + 1 s hold + 3 s count ≈ 6.5 s, give slack)

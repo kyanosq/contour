@@ -1,4 +1,7 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../design/tokens.dart';
 
@@ -116,9 +119,7 @@ class _SilhouettePainter extends CustomPainter {
       (0.435, 0.72), // knee inner
       (0.50, 0.575), // crotch
     ];
-    final right = [
-      for (final p in left.reversed) (1 - p.$1, p.$2),
-    ];
+    final right = [for (final p in left.reversed) (1 - p.$1, p.$2)];
     path.addPath(_smooth(r, [...left, ...right]), Offset.zero);
     return path;
   }
@@ -158,8 +159,13 @@ class _SilhouettePainter extends CustomPainter {
     return path;
   }
 
-  void _drawDashed(Canvas canvas, Path source, Paint paint,
-      {required double dash, required double gap}) {
+  void _drawDashed(
+    Canvas canvas,
+    Path source,
+    Paint paint, {
+    required double dash,
+    required double gap,
+  }) {
     for (final metric in source.computeMetrics()) {
       var distance = 0.0;
       while (distance < metric.length) {
@@ -175,70 +181,136 @@ class _SilhouettePainter extends CustomPainter {
       old.side != side || old.color != color;
 }
 
-/// The spirit-level ring + bubble. Brass ring lights up when level.
-class LevelRing extends StatelessWidget {
+/// The spirit-level ring: bubble + rotating chalk horizon (roll) + animated
+/// nudge arrow (pitch/roll direction), with a snap pulse when it locks level.
+class LevelRing extends StatefulWidget {
   const LevelRing({
     super.key,
     required this.dx,
     required this.dy,
     required this.level,
+    this.rollDeg = 0,
     this.radius = 36,
   });
 
   final double dx;
   final double dy;
   final bool level;
+
+  /// Left/right tilt in degrees — drives the horizon line.
+  final double rollDeg;
   final double radius;
 
   @override
+  State<LevelRing> createState() => _LevelRingState();
+}
+
+class _LevelRingState extends State<LevelRing> with TickerProviderStateMixin {
+  late final AnimationController _breath = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1100),
+  )..repeat(reverse: true);
+  late final AnimationController _snap = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 420),
+  );
+
+  @override
+  void didUpdateWidget(covariant LevelRing old) {
+    super.didUpdateWidget(old);
+    if (!old.level && widget.level) {
+      _snap.forward(from: 0); // lock-in pulse
+      HapticFeedback.mediumImpact();
+    }
+  }
+
+  @override
+  void dispose() {
+    _breath.dispose();
+    _snap.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final radius = widget.radius;
     const accent = Atelier.accentBright;
-    final ringColor =
-        level ? accent : Colors.white.withValues(alpha: 0.85);
+    final ringColor = widget.level
+        ? accent
+        : Colors.white.withValues(alpha: 0.85);
     return SizedBox(
       width: radius * 2 + 24,
       height: radius * 2 + 24,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // ring with tick marks
-          CustomPaint(
-            size: Size.square(radius * 2),
-            painter: _RingPainter(color: ringColor, level: level),
-          ),
-          // bubble
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 90),
-            curve: Curves.linear,
-            transform: Matrix4.translationValues(
-              dx * (radius - 9),
-              dy * (radius - 9),
-              0,
-            ),
-            width: 16,
-            height: 16,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: level ? accent : Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  blurRadius: 6,
+      child: AnimatedBuilder(
+        animation: Listenable.merge([_breath, _snap]),
+        builder: (context, _) {
+          final snapScale = 1 + 0.10 * math.sin(math.pi * _snap.value);
+          return Transform.scale(
+            scale: snapScale,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                CustomPaint(
+                  size: Size.square(radius * 2),
+                  painter: _RingPainter(
+                    color: ringColor,
+                    level: widget.level,
+                    rollDeg: widget.rollDeg,
+                    bubble: Offset(widget.dx, widget.dy),
+                    breath: _breath.value,
+                  ),
+                ),
+                // bubble
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 90),
+                  curve: Curves.linear,
+                  transform: Matrix4.translationValues(
+                    widget.dx * (radius - 9),
+                    widget.dy * (radius - 9),
+                    0,
+                  ),
+                  width: 16,
+                  height: 16,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: widget.level ? accent : Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: widget.level
+                            ? accent.withValues(alpha: 0.55)
+                            : Colors.black.withValues(alpha: 0.35),
+                        blurRadius: widget.level ? 12 : 6,
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.color, required this.level});
+  _RingPainter({
+    required this.color,
+    required this.level,
+    required this.rollDeg,
+    required this.bubble,
+    required this.breath,
+  });
 
   final Color color;
   final bool level;
+  final double rollDeg;
+
+  /// Normalized bubble offset (-1..1 per axis).
+  final Offset bubble;
+
+  /// 0..1 oscillation for the nudge arrow.
+  final double breath;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -249,21 +321,63 @@ class _RingPainter extends CustomPainter {
       ..strokeWidth = level ? 2.4 : 1.6
       ..color = color;
     canvas.drawCircle(c, r, ring);
+
     // 4 cardinal ticks — the "gauge" character
     final tick = Paint()
       ..strokeWidth = 1.6
       ..strokeCap = StrokeCap.round
       ..color = color;
     for (final a in [0.0, 90.0, 180.0, 270.0]) {
-      final rad = a * 3.14159265 / 180;
-      final dir = Offset(
-        r * 1.0 * cosApprox(rad),
-        r * 1.0 * sinApprox(rad),
-      );
-      final outer = c + dir;
-      final inner = c + dir * ((r - 6) / r);
-      canvas.drawLine(inner, outer, tick);
+      final rad = a * math.pi / 180;
+      final dir = Offset.fromDirection(rad, r);
+      canvas.drawLine(c + dir * ((r - 6) / r), c + dir, tick);
     }
+
+    // Chalk horizon — rotates with roll, snaps flat + bright when level.
+    // Fixed reference wings just outside the ring show "flat".
+    final wing = Paint()
+      ..strokeWidth = 1.4
+      ..strokeCap = StrokeCap.round
+      ..color = Colors.white.withValues(alpha: 0.5);
+    canvas.drawLine(
+      Offset(c.dx - r - 12, c.dy),
+      Offset(c.dx - r - 3, c.dy),
+      wing,
+    );
+    canvas.drawLine(
+      Offset(c.dx + r + 3, c.dy),
+      Offset(c.dx + r + 12, c.dy),
+      wing,
+    );
+    final horizonAngle = level ? 0.0 : rollDeg * math.pi / 180;
+    final half = Offset.fromDirection(horizonAngle, r * 0.68);
+    final horizon = Paint()
+      ..strokeWidth = level ? 2.6 : 1.8
+      ..strokeCap = StrokeCap.round
+      ..color = level ? Atelier.accentBright : color.withValues(alpha: 0.9);
+    if (level) {
+      horizon.maskFilter = const MaskFilter.blur(BlurStyle.solid, 3);
+    }
+    canvas.drawLine(c - half, c + half, horizon);
+
+    // Nudge arrow: from the bubble toward center, breathing — "push it home".
+    if (!level && bubble.distance > 0.3) {
+      final dirToCenter = -bubble / bubble.distance;
+      final base =
+          c +
+          Offset(bubble.dx, bubble.dy) * (r - 9) +
+          dirToCenter * (14 + 4 * breath);
+      final tip = base + dirToCenter * 12;
+      final ortho = Offset(-dirToCenter.dy, dirToCenter.dx);
+      final arrow = Paint()
+        ..strokeWidth = 2.2
+        ..strokeCap = StrokeCap.round
+        ..color = Colors.white.withValues(alpha: 0.35 + 0.45 * breath);
+      canvas.drawLine(tip, tip - dirToCenter * 7 + ortho * 5, arrow);
+      canvas.drawLine(tip, tip - dirToCenter * 7 - ortho * 5, arrow);
+      canvas.drawLine(base, tip, arrow);
+    }
+
     // inner target circle
     canvas.drawCircle(
       c,
@@ -275,10 +389,11 @@ class _RingPainter extends CustomPainter {
     );
   }
 
-  static double cosApprox(double x) => Offset.fromDirection(x).dx;
-  static double sinApprox(double x) => Offset.fromDirection(x).dy;
-
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.color != color || old.level != level;
+      old.color != color ||
+      old.level != level ||
+      old.rollDeg != rollDeg ||
+      old.bubble != bubble ||
+      old.breath != breath;
 }

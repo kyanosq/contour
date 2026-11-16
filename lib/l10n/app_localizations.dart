@@ -464,6 +464,36 @@ abstract class AppLocalizations {
   /// **'微调手机，让气泡进入圆环'**
   String get captureLevelHint;
 
+  /// No description provided for @captureRollHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'左右摆正手机，让划粉线转平'**
+  String get captureRollHint;
+
+  /// No description provided for @capturePitchHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'手机立直，别前后倾'**
+  String get capturePitchHint;
+
+  /// No description provided for @captureSelfieBadge.
+  ///
+  /// In zh, this message translates to:
+  /// **'自拍'**
+  String get captureSelfieBadge;
+
+  /// No description provided for @captureBeltHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'可拖动标记腰带位置'**
+  String get captureBeltHint;
+
+  /// No description provided for @captureBeltMarked.
+  ///
+  /// In zh, this message translates to:
+  /// **'腰带位置已标记'**
+  String get captureBeltMarked;
+
   /// No description provided for @captureHoldSteady.
   ///
   /// In zh, this message translates to:

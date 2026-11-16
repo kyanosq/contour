@@ -17,11 +17,11 @@ ThemeData _base(Brightness b) {
     onSecondary: Atelier.nightBg,
     error: Atelier.danger,
     onError: Colors.white,
-    surface: isObsidian ? Atelier.nightBg : Atelier.chalk,
+    surface: isObsidian ? Atelier.nightBg : Atelier.chalkBg,
     onSurface: Atelier.ink,
     surfaceContainerLow: isObsidian ? Atelier.nightCard : Atelier.card,
     surfaceContainerHighest:
-        isObsidian ? const Color(0xFF1B2233) : const Color(0xFF262D3D),
+        isObsidian ? const Color(0xFF1A2132) : const Color(0xFF272E3E),
     onSurfaceVariant: isObsidian ? Atelier.nightThread : Atelier.thread,
     outlineVariant: Colors.white.withValues(alpha: isObsidian ? 0.10 : 0.12),
   );
